@@ -1,0 +1,154 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Cookie检查工具</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+      button {
+        padding: 10px 20px;
+        margin: 10px 0;
+        cursor: pointer;
+      }
+      .success {
+        color: green;
+      }
+      .error {
+        color: red;
+      }
+      pre {
+        background: #f5f5f5;
+        padding: 10px;
+        border-radius: 5px;
+        overflow-x: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🔍 Cookie诊断工具</h1>
+
+    <h2>步骤1: 检查当前Cookie</h2>
+    <button onclick="checkCookie()">检查Cookie</button>
+    <div id="cookie-result"></div>
+
+    <h2>步骤2: 测试登录</h2>
+    <input
+      type="email"
+      id="email"
+      placeholder="输入邮箱"
+      value="test@test.com"
+    />
+    <button onclick="sendCode()">发送验证码</button>
+    <div id="login-result"></div>
+
+    <h2>步骤3: 验证登录状态</h2>
+    <button onclick="checkAuth()">检查认证状态</button>
+    <div id="auth-result"></div>
+
+    <h2>步骤4: 测试聊天</h2>
+    <button onclick="testChat()">测试聊天API</button>
+    <div id="chat-result"></div>
+
+    <script>
+      function checkCookie() {
+        const cookies = document.cookie;
+        const result = document.getElementById("cookie-result");
+        if (cookies) {
+          result.innerHTML =
+            '<p class="success">✅ 当前Cookie: ' + cookies + "</p>";
+        } else {
+          result.innerHTML = '<p class="error">❌ 没有Cookie</p>';
+        }
+      }
+
+      async function sendCode() {
+        const email = document.getElementById("email").value;
+        const result = document.getElementById("login-result");
+        result.innerHTML = "<p>发送中...</p>";
+
+        try {
+          const res = await fetch("/api/auth/send-code", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ email }),
+          });
+          const data = await res.json();
+          result.innerHTML = "<pre>" + JSON.stringify(data, null, 2) + "</pre>";
+
+          if (data.devCode) {
+            result.innerHTML += "<p>开发验证码: " + data.devCode + "</p>";
+            result.innerHTML +=
+              "<button onclick=\"verifyCode('" +
+              email +
+              "', '" +
+              data.devCode +
+              "')\">使用此验证码登录</button>";
+          }
+        } catch (e) {
+          result.innerHTML = '<p class="error">错误: ' + e.message + "</p>";
+        }
+      }
+
+      async function verifyCode(email, code) {
+        const result = document.getElementById("login-result");
+        try {
+          const res = await fetch("/api/auth/verify-code", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ email, code }),
+          });
+          const data = await res.json();
+          result.innerHTML +=
+            "<pre>登录结果: " + JSON.stringify(data, null, 2) + "</pre>";
+          checkCookie();
+        } catch (e) {
+          result.innerHTML +=
+            '<p class="error">登录错误: ' + e.message + "</p>";
+        }
+      }
+
+      async function checkAuth() {
+        const result = document.getElementById("auth-result");
+        try {
+          const res = await fetch("/api/auth/me", { credentials: "include" });
+          const data = await res.json();
+          result.innerHTML =
+            "<pre>状态码: " +
+            res.status +
+            "\n" +
+            JSON.stringify(data, null, 2) +
+            "</pre>";
+        } catch (e) {
+          result.innerHTML = '<p class="error">错误: ' + e.message + "</p>";
+        }
+      }
+
+      async function testChat() {
+        const result = document.getElementById("chat-result");
+        try {
+          const res = await fetch("/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({
+              messages: [{ role: "user", content: "你好" }],
+              characterId: "test",
+              characterName: "Test",
+            }),
+          });
+          const text = await res.text();
+          result.innerHTML = "<p>状态码: " + res.status + "</p>";
+          result.innerHTML += "<pre>" + text.substring(0, 500) + "</pre>";
+        } catch (e) {
+          result.innerHTML = '<p class="error">错误: ' + e.message + "</p>";
+        }
+      }
+    </script>
+  </body>
+</html>
