@@ -128,10 +128,7 @@ export class ZhipuAIChatProvider {
 
     const url = `${API_BASE_URL}${this.endpoint}`;
     console.log("[ZhipuAI-Chat] 正在请求:", url);
-    console.log(
-      "[ZhipuAI-Chat] API Key前10位:",
-      API_KEY.substring(0, 10) + "...",
-    );
+    // Do not log credentials, including partial API keys.
     console.log(
       "[ZhipuAI-Chat] Request body length:",
       JSON.stringify(body).length,

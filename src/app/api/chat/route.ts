@@ -5,15 +5,11 @@ import { getOrCreateChatSession, saveChatMessage } from "@/services/database";
 
 export async function POST(request: NextRequest) {
   try {
-    console.log(
-      "[Chat-API] 收到请求，Headers:",
-      JSON.stringify(Object.fromEntries(request.headers.entries())),
-    );
+    console.log("[Chat-API] 收到请求");
 
     let requestBody;
     try {
       requestBody = await request.json();
-      console.log("[Chat-API] 请求体:", JSON.stringify(requestBody, null, 2));
     } catch (parseError) {
       console.error("[Chat-API] 解析请求体失败:", parseError);
       return new Response(
@@ -26,7 +22,6 @@ export async function POST(request: NextRequest) {
     }
 
     const session = await getSession();
-    console.log("[Chat-API] Session:", session);
     if (!session) {
       console.log("[Chat-API] 未找到session，返回401");
       return new Response(JSON.stringify({ error: "请先登录" }), {
@@ -38,13 +33,16 @@ export async function POST(request: NextRequest) {
     const { messages, characterId, characterName, characterAvatar } =
       requestBody;
 
+    console.log("[Chat-API] 请求摘要:", {
+      messageCount: Array.isArray(messages) ? messages.length : 0,
+      hasCharacter: Boolean(characterId && characterName),
+    });
+
     if (!messages || !Array.isArray(messages)) {
-      console.error("[Chat-API] messages参数错误:", messages);
       return new Response(
         JSON.stringify({
           error: "messages 参数必须是数组",
           received: typeof messages,
-          value: messages,
         }),
         { status: 400, headers: { "Content-Type": "application/json" } },
       );

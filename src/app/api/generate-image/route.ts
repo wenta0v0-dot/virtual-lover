@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { generateImageWithRetry } from "@/services/image-generation";
-import { recordImageGeneration } from "@/services/database";
+import {
+  recordImageGeneration,
+  updateImageGenerationStatus,
+} from "@/services/database";
 
 const rateLimitStore = new Map<
   string,
@@ -60,6 +63,17 @@ export async function POST(request: NextRequest) {
 
     const { prompt, size, imageUrl } = await request.json();
 
+    if (typeof prompt !== "string" || !prompt.trim()) {
+      return NextResponse.json({ error: "请输入图片描述" }, { status: 400 });
+    }
+
+    if (prompt.length > 2000) {
+      return NextResponse.json(
+        { error: "图片描述不能超过 2000 个字符" },
+        { status: 400 },
+      );
+    }
+
     console.log(
       `[Generate-Image] User ${session.userId} from ${clientIP}, prompt length: ${prompt?.length}, hasReferenceImage: !!imageUrl`,
     );
@@ -83,30 +97,21 @@ export async function POST(request: NextRequest) {
       });
 
       if (result.success && result.imageUrls) {
-        await recordImageGeneration(
-          session.userId,
-          prompt,
-          size || "1280x1280",
-          result.imageUrls,
+        await updateImageGenerationStatus(
+          record.id,
           "success",
-          undefined,
-          undefined,
-          imageUrl,
+          result.imageUrls,
         ).catch((err) =>
           console.error("[Generate-Image] Update success record error:", err),
         );
 
         return NextResponse.json({ imageUrls: result.imageUrls });
       } else {
-        await recordImageGeneration(
-          session.userId,
-          prompt,
-          size || "1280x1280",
-          [],
+        await updateImageGenerationStatus(
+          record.id,
           "failed",
-          result.error?.message,
           undefined,
-          imageUrl,
+          result.error?.message,
         ).catch((err) =>
           console.error("[Generate-Image] Update failed record error:", err),
         );
@@ -124,15 +129,11 @@ export async function POST(request: NextRequest) {
     } catch (error) {
       console.error("[Generate-Image] Generation error:", error);
 
-      await recordImageGeneration(
-        session.userId,
-        prompt,
-        size || "1280x1280",
-        [],
+      await updateImageGenerationStatus(
+        record.id,
         "failed",
-        error instanceof Error ? error.message : "未知错误",
         undefined,
-        imageUrl,
+        error instanceof Error ? error.message : "未知错误",
       ).catch((err) =>
         console.error("[Generate-Image] Update error record error:", err),
       );

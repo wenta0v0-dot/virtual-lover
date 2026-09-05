@@ -106,7 +106,7 @@ export async function recordImageGeneration(
   prompt: string,
   size: string,
   imageUrls: string[],
-  status: "success" | "failed",
+  status: "pending" | "success" | "failed",
   errorMessage?: string,
   retryCount?: number,
   referenceImageUrl?: string,

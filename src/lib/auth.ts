@@ -27,7 +27,8 @@ export async function createSession(userId: number, email: string) {
   const cookieStore = await cookies();
   cookieStore.set("session", token, {
     httpOnly: true,
-    secure: false, // 开发环境不使用https
+    // HTTPS deployments must never send the session cookie over plain HTTP.
+    secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     maxAge: 60 * 60 * 24 * 7,
     path: "/",
@@ -38,18 +39,11 @@ export async function createSession(userId: number, email: string) {
 
 export async function getSession() {
   const cookieStore = await cookies();
-  const allCookies = cookieStore.getAll();
-  console.log(
-    "[Auth] 所有cookies:",
-    allCookies.map((c) => c.name),
-  );
   const token = cookieStore.get("session")?.value;
-  console.log("[Auth] session token:", token ? "存在" : "不存在");
   if (!token) return null;
 
   try {
     const payload = await decrypt(token);
-    console.log("[Auth] 解密成功:", payload);
     return payload as { userId: number; email: string };
   } catch (e) {
     console.log("[Auth] 解密失败:", e);
