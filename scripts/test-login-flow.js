@@ -47,10 +47,11 @@ async function testLoginFlow() {
 
   // 1. 测试发送验证码
   console.log("1️⃣  发送验证码...");
-  const email = "test-" + Date.now() + "@test.com";
+  const phone =
+    "138" + String(Math.floor(Math.random() * 100000000)).padStart(8, "0");
   const sendCodeRes = await makeRequest("/api/auth/send-code", {
     method: "POST",
-    body: { email },
+    body: { phone },
   });
   console.log("   状态码:", sendCodeRes.statusCode);
 
@@ -62,7 +63,7 @@ async function testLoginFlow() {
     console.log("\n2️⃣  验证码登录...");
     const verifyRes = await makeRequest("/api/auth/verify-code", {
       method: "POST",
-      body: { email, code: sendCodeData.devCode },
+      body: { phone, code: sendCodeData.devCode },
     });
     console.log("   状态码:", verifyRes.statusCode);
     console.log("   响应:", verifyRes.body.substring(0, 100));

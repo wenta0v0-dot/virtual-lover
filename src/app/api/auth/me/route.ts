@@ -7,7 +7,7 @@ export async function GET() {
       return Response.json({
         user: {
           id: 1,
-          email: "dev@example.com",
+          phone: "13800138000",
           name: "开发用户",
           avatar: null,
         },
@@ -23,7 +23,7 @@ export async function GET() {
     return Response.json({
       user: {
         id: user.id,
-        email: user.email,
+        phone: user.phone,
         name: user.name,
         avatar: user.avatar,
       },

@@ -155,18 +155,19 @@ export class ZhipuAIChatProvider {
 
       clearTimeout(timeoutId);
       return response;
-    } catch (error: any) {
+    } catch (error) {
       clearTimeout(timeoutId);
+      const err = error as Error & { code?: string; cause?: { code?: string } };
 
       console.error("[ZhipuAI-Chat] fetch失败，详细错误:");
-      console.error("   - 错误类型:", error.constructor?.name || "Unknown");
-      console.error("   - 错误消息:", error.message);
-      console.error("   - 错误代码:", error.code);
-      console.error("   - 是否超时:", error.name === "AbortError");
+      console.error("   - 错误类型:", err.constructor?.name || "Unknown");
+      console.error("   - 错误消息:", err.message);
+      console.error("   - 错误代码:", err.code);
+      console.error("   - 是否超时:", err.name === "AbortError");
 
-      if (error.cause) {
-        console.error("   - 原因:", error.cause);
-        if (error.cause.code) console.error("   - 原因代码:", error.cause.code);
+      if (err.cause) {
+        console.error("   - 原因:", err.cause);
+        if (err.cause.code) console.error("   - 原因代码:", err.cause.code);
       }
 
       throw error;

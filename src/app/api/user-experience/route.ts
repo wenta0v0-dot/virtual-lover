@@ -18,14 +18,14 @@ export async function GET(request: NextRequest) {
     // 获取所有聊天会话
     const chatSessions = await getUserChatSessions(userId);
 
-    // 获取每个会话的最新消息
+    // 获取每个会话的最新消息（SQL 层限制条数）
     const sessionsWithMessages = await Promise.all(
       chatSessions.slice(0, 5).map(async (session) => {
-        const messages = await getChatHistory(session.id);
+        const messages = await getChatHistory(session.id, 3);
         return {
           ...session,
-          recentMessages: messages.slice(0, 3),
-          messageCount: messages.length,
+          recentMessages: messages,
+          messageCount: session.messageCount,
         };
       }),
     );
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       user: {
         id: userId,
-        email: session.email,
+        phone: session.phone,
       },
       stats: {
         totalMessages,

@@ -81,14 +81,15 @@ export async function saveChatMessage(
   return message;
 }
 
-export async function getChatHistory(sessionId: number) {
+export async function getChatHistory(sessionId: number, limit = 200) {
   const db = getDb();
 
   return db
     .select()
     .from(chatMessages)
     .where(eq(chatMessages.sessionId, sessionId))
-    .orderBy(desc(chatMessages.createdAt));
+    .orderBy(desc(chatMessages.createdAt))
+    .limit(limit);
 }
 
 export async function getUserChatSessions(userId: number) {

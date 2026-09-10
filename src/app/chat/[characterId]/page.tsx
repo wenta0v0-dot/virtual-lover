@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { characters, getCharacter, type Character } from "@/lib/characters";
 import UserMenu from "@/components/UserMenu";
+import ImageUploader from "@/components/ImageUploader";
 import { useAuth } from "@/hooks/useAuth";
 
 interface Message {
@@ -48,6 +49,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [showImageUploader, setShowImageUploader] = useState(false);
   const [userAvatar, setUserAvatar] = useState<string | null>(null); // 新增：用户头像
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -508,6 +510,89 @@ export default function ChatPage() {
     setIsSending(false);
   }
 
+  // Send image message
+  async function handleSendImage(imageData: string, file: File) {
+    if (isSending || !character) return;
+
+    const userMsg: Message = {
+      id: crypto.randomUUID(),
+      role: "user",
+      text: "[图片]",
+      imageUrl: imageData,
+    };
+
+    const assistantMsg: Message = {
+      id: crypto.randomUUID(),
+      role: "assistant",
+      text: "",
+      isStreaming: true,
+    };
+
+    setMessages((prev) => [...prev, userMsg, assistantMsg]);
+    setShowImageUploader(false);
+    setIsSending(true);
+
+    try {
+      // Build form data
+      const formData = new FormData();
+      formData.append("image", file);
+      formData.append(
+        "messages",
+        JSON.stringify(
+          messages.map((m) => ({
+            role: m.role,
+            content: m.text,
+          })),
+        ),
+      );
+      formData.append(
+        "characterData",
+        JSON.stringify({
+          name: character.name,
+          systemPrompt: character.systemPrompt,
+          appearance: character.appearance,
+        }),
+      );
+
+      // Send to API
+      const response = await fetch("/api/chat-with-image", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "发送失败");
+      }
+
+      // Update assistant message
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === assistantMsg.id
+            ? { ...m, text: data.reply, isStreaming: false }
+            : m,
+        ),
+      );
+    } catch (error) {
+      console.error("[SendImage] Error:", error);
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === assistantMsg.id
+            ? {
+                ...m,
+                text: "抱歉，我暂时无法查看图片，请稍后再试～",
+                isStreaming: false,
+              }
+            : m,
+        ),
+      );
+    } finally {
+      setIsSending(false);
+    }
+  }
+
   // Handle key press
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -610,7 +695,7 @@ export default function ChatPage() {
             >
               {character.avatar}
             </div>
-            {character.isOnline && (
+            {"isOnline" in character && character.isOnline && (
               <div className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 ring-2 ring-white" />
             )}
           </div>
@@ -638,7 +723,7 @@ export default function ChatPage() {
             <MessageBubble
               key={msg.id}
               message={msg}
-              character={character!}
+              character={character as Character}
               userAvatar={userAvatar}
               onRetryImage={retryImage}
             />
@@ -649,7 +734,42 @@ export default function ChatPage() {
 
       {/* Input area - WeChat style */}
       <div className="border-t border-[#E0E0E0] bg-[#F7F7F7] px-4 py-3">
+        {/* Image Uploader */}
+        {showImageUploader && (
+          <div className="mb-3">
+            <ImageUploader
+              onImageSelect={handleSendImage}
+              onCancel={() => setShowImageUploader(false)}
+            />
+          </div>
+        )}
+
         <div className="mx-auto flex max-w-lg items-end gap-3">
+          {/* Image upload button */}
+          <button
+            onClick={() => setShowImageUploader(!showImageUploader)}
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full shadow-sm transition-all ${
+              showImageUploader
+                ? "bg-[#F8C8D4] text-white"
+                : "bg-white text-[#9B8A8E] hover:bg-[#F8C8D4]/20"
+            }`}
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <polyline points="21 15 16 10 5 21" />
+            </svg>
+          </button>
+
           <div className="flex-1 rounded-lg bg-white px-4 py-2.5 shadow-sm">
             <textarea
               value={inputText}

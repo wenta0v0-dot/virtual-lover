@@ -21,8 +21,8 @@ export async function decrypt(token: string) {
   return payload;
 }
 
-export async function createSession(userId: number, email: string) {
-  const token = await encrypt({ userId, email });
+export async function createSession(userId: number, phone: string) {
+  const token = await encrypt({ userId, phone });
   console.log("[Auth] 创建session，token长度:", token.length);
   const cookieStore = await cookies();
   cookieStore.set("session", token, {
@@ -44,7 +44,7 @@ export async function getSession() {
 
   try {
     const payload = await decrypt(token);
-    return payload as { userId: number; email: string };
+    return payload as { userId: number; phone: string };
   } catch (e) {
     console.log("[Auth] 解密失败:", e);
     return null;

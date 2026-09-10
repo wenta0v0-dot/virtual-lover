@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function DebugAvatarPage() {
   const { user } = useAuth(true);
-  const [userInfo, setUserInfo] = useState<any>(null);
+  const [userInfo, setUserInfo] = useState<{ user?: { avatar?: string | null } } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -200,25 +201,25 @@ export default function DebugAvatarPage() {
           >
             🔄 刷新页面
           </button>
-          <a
+          <Link
             href="/profile"
             className="px-6 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition-colors inline-block"
           >
             👤 前往个人中心
-          </a>
-          <a
+          </Link>
+          <Link
             href="/chat/demo-character"
             className="px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors inline-block"
           >
             💬 测试聊天界面
-          </a>
+          </Link>
         </div>
 
         {/* 说明 */}
         <div className="mt-8 p-6 bg-blue-50 rounded-lg">
           <h3 className="font-semibold text-blue-800 mb-2">📝 使用说明</h3>
           <ol className="text-sm text-blue-700 space-y-1 list-decimal list-inside">
-            <li>查看上方"API返回的用户设置"中的 avatar 字段</li>
+            <li>查看上方“API返回的用户设置”中的 avatar 字段</li>
             <li>确认 avatar 是否有值（应该类似 /uploads/avatars/1_xxx.jpg）</li>
             <li>查看图片是否能正常显示</li>
             <li>如果图片不显示，点击直接访问链接测试</li>

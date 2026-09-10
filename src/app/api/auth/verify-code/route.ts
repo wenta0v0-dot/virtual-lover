@@ -4,8 +4,13 @@ import { isDevMode, verifyDevCode } from "@/lib/dev-auth";
 import { checkRateLimit, resetRateLimit } from "@/lib/rate-limit";
 import { z } from "zod";
 
+const phoneRegex = /^1[3-9]\d{9}$/;
+
 const verifyCodeSchema = z.object({
-  email: z.string().email("请输入有效的邮箱地址"),
+  phone: z
+    .string()
+    .min(1, "请输入手机号码")
+    .regex(phoneRegex, "请输入有效的11位手机号码"),
   code: z.string().length(6, "验证码为6位数字"),
 });
 
@@ -21,9 +26,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { email, code } = result.data;
+    const { phone, code } = result.data;
 
-    const rateLimitResult = checkRateLimit(`verify:${email}`);
+    const rateLimitResult = checkRateLimit(`verify:${phone}`);
     if (!rateLimitResult.allowed) {
       return Response.json(
         {
@@ -36,7 +41,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (isDevMode()) {
-      const valid = verifyDevCode(email, code);
+      const valid = verifyDevCode(phone, code);
       if (!valid) {
         return Response.json(
           {
@@ -47,16 +52,16 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      resetRateLimit(`verify:${email}`);
+      resetRateLimit(`verify:${phone}`);
 
       const devUser = {
         id: 1,
-        email,
-        name: email.split("@")[0],
+        phone,
+        name: `用户${phone.slice(-4)}`,
         avatar: null,
       };
 
-      await createSession(devUser.id, devUser.email);
+      await createSession(devUser.id, devUser.phone);
 
       return Response.json({
         success: true,
@@ -77,7 +82,7 @@ export async function POST(request: NextRequest) {
       .from(verificationCodes)
       .where(
         and(
-          eq(verificationCodes.email, email),
+          eq(verificationCodes.phone, phone),
           eq(verificationCodes.code, code),
           eq(verificationCodes.used, 0),
           gt(verificationCodes.expiresAt, now),
@@ -100,32 +105,32 @@ export async function POST(request: NextRequest) {
       .set({ used: 1 })
       .where(eq(verificationCodes.id, validCode[0].id));
 
-    resetRateLimit(`verify:${email}`);
+    resetRateLimit(`verify:${phone}`);
 
     let user = await db
       .select()
       .from(users)
-      .where(eq(users.email, email))
+      .where(eq(users.phone, phone))
       .limit(1);
 
     if (user.length === 0) {
       const newUser = await db
         .insert(users)
         .values({
-          email,
-          name: email.split("@")[0],
+          phone,
+          name: `用户${phone.slice(-4)}`,
         })
         .returning();
       user = newUser;
     }
 
-    await createSession(user[0].id, user[0].email);
+    await createSession(user[0].id, user[0].phone);
 
     return Response.json({
       success: true,
       user: {
         id: user[0].id,
-        email: user[0].email,
+        phone: user[0].phone,
         name: user[0].name,
         avatar: user[0].avatar,
       },

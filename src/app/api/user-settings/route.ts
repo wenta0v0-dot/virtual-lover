@@ -25,7 +25,7 @@ export async function GET() {
     return new Response(
       JSON.stringify({
         id: user.id,
-        email: user.email,
+        phone: user.phone,
         name: user.name || "",
         avatar: user.avatar || null,
       }),
@@ -70,7 +70,7 @@ export async function PUT(request: NextRequest) {
       return new Response(
         JSON.stringify({
           error: "无效的JSON格式",
-          details: parseError.message,
+          details: parseError instanceof Error ? parseError.message : String(parseError),
         }),
         { status: 400, headers: { "Content-Type": "application/json" } },
       );
@@ -162,7 +162,7 @@ export async function PUT(request: NextRequest) {
         message: "更新成功",
         user: {
           id: user.id,
-          email: user.email,
+          phone: user.phone,
           name: user.name,
           avatar: user.avatar,
         },

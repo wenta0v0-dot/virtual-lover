@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
       return new Response(
         JSON.stringify({
           error: "无效的JSON格式",
-          details: parseError.message,
+          details: parseError instanceof Error ? parseError.message : String(parseError),
         }),
         { status: 400, headers: { "Content-Type": "application/json" } },
       );

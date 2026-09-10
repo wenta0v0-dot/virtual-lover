@@ -3,13 +3,13 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useAuth } from "@/hooks/use-auth";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function UserMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-  const { user, isLoading, logout } = useAuth();
+  const { user, isLoading, logout } = useAuth(false);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -73,7 +73,7 @@ export default function UserMenu() {
     );
   }
 
-  const displayName = user.name || user.email.split("@")[0];
+  const displayName = user.name || `用户${user.phone.slice(-4)}`;
 
   return (
     <div className="relative" ref={menuRef}>
@@ -120,7 +120,7 @@ export default function UserMenu() {
               {displayName}
             </p>
             <p className="text-xs text-[#9B8A8E] mt-0.5 truncate">
-              {user.email}
+              {user.phone.replace(/(\d{3})\d{4}(\d{4})/, "$1****$2")}
             </p>
           </div>
 

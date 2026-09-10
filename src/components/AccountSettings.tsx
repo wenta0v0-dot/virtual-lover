@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 
 interface UserSettings {
   id: number;
-  email: string;
+  phone: string;
   name: string;
   avatar: string | null;
 }
@@ -267,18 +267,18 @@ export default function AccountSettings({
                 </p>
               </div>
 
-              {/* Email Display */}
+              {/* Phone Display */}
               <div className="space-y-3">
                 <label className="text-sm font-semibold text-[#3D2C2E] flex items-center gap-2">
-                  <span>📧</span> 邮箱
+                  <span>📱</span> 手机号
                 </label>
 
                 <div className="px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-[#9B8A8E]">
-                  {settings.email}
+                  {settings.phone.replace(/(\d{3})\d{4}(\d{4})/, "$1****$2")}
                 </div>
 
                 <p className="text-xs text-[#9B8A8E]">
-                  邮箱用于登录和找回密码，不可修改
+                  手机号用于登录和找回密码，不可修改
                 </p>
               </div>
             </>

@@ -7,12 +7,33 @@ const MAX_ATTEMPTS = 5;
 const LOCKOUT_DURATION = 15 * 60 * 1000;
 const ATTEMPT_WINDOW = 15 * 60 * 1000;
 
+// 记录的存活上限：锁定中保留到解锁，普通记录保留一个窗口期
+const RECORD_TTL = Math.max(LOCKOUT_DURATION, ATTEMPT_WINDOW) * 2;
+// 每次清理的间隔，避免高频请求反复全表扫描
+const CLEANUP_INTERVAL = 5 * 60 * 1000;
+let lastCleanupAt = Date.now();
+
+function cleanupExpired(now: number): void {
+  if (now - lastCleanupAt < CLEANUP_INTERVAL) return;
+  lastCleanupAt = now;
+  for (const [key, record] of attemptStore) {
+    const keepUntil = Math.max(
+      record.lastAttempt + RECORD_TTL,
+      record.lockedUntil ?? 0,
+    );
+    if (now > keepUntil) {
+      attemptStore.delete(key);
+    }
+  }
+}
+
 export function checkRateLimit(identifier: string): {
   allowed: boolean;
   remainingAttempts: number;
   lockoutRemaining?: number;
 } {
   const now = Date.now();
+  cleanupExpired(now);
   const record = attemptStore.get(identifier);
 
   if (record?.lockedUntil && now < record.lockedUntil) {

@@ -4,29 +4,29 @@ export function isDevMode(): boolean {
   return process.env.DEV_MODE === "true";
 }
 
-export function generateDevCode(email: string): string {
+export function generateDevCode(identifier: string): string {
   const code = Math.floor(100000 + Math.random() * 900000).toString();
-  devStore.set(email, {
+  devStore.set(identifier, {
     code,
     expiresAt: Date.now() + 10 * 60 * 1000,
   });
   return code;
 }
 
-export function verifyDevCode(email: string, code: string): boolean {
-  const record = devStore.get(email);
+export function verifyDevCode(identifier: string, code: string): boolean {
+  const record = devStore.get(identifier);
   if (!record) return false;
   if (record.code !== code) return false;
   if (Date.now() > record.expiresAt) return false;
-  devStore.delete(email);
+  devStore.delete(identifier);
   return true;
 }
 
-export function getDevCode(email: string): string | null {
-  const record = devStore.get(email);
+export function getDevCode(identifier: string): string | null {
+  const record = devStore.get(identifier);
   if (!record) return null;
   if (Date.now() > record.expiresAt) {
-    devStore.delete(email);
+    devStore.delete(identifier);
     return null;
   }
   return record.code;

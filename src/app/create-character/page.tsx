@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import UserMenu from "@/components/UserMenu";
+import ImageToPromptAssistant from "@/components/ImageToPromptAssistant";
+import AvatarSystem from "@/components/AvatarSystem";
 import { useAuth } from "@/hooks/useAuth";
 
 interface FormData {
@@ -105,10 +107,10 @@ export default function CreateCharacterPage() {
           const data = await response.json();
           const characters = data.characters || [];
           const maleCount = characters.filter(
-            (c: any) => c.gender === "male",
+            (c: { gender?: string }) => c.gender === "male",
           ).length;
           const femaleCount = characters.filter(
-            (c: any) => c.gender === "female",
+            (c: { gender?: string }) => c.gender === "female",
           ).length;
 
           setExistingCharacters({ male: maleCount, female: femaleCount });
@@ -171,10 +173,30 @@ export default function CreateCharacterPage() {
     }));
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleAIPromptsApply = (prompts: {
+    appearance: string;
+    tags: string[];
+    systemPrompt: string;
+    name: string;
+    title: string;
+  }) => {
+    setFormData((prev) => ({
+      ...prev,
+      name: prompts.name || prev.name,
+      title: prompts.title || prev.title,
+      tags: [...new Set([...prev.tags, ...prompts.tags])],
+      appearance: prompts.appearance || prev.appearance,
+      systemPrompt: prompts.systemPrompt || prev.systemPrompt,
+    }));
 
+    console.log("[Create-Character] Applied AI prompts:", {
+      name: prompts.name,
+      title: prompts.title,
+      tagsCount: prompts.tags.length,
+    });
+  };
+
+  const handleImageUpload = (file: File) => {
     // 检查文件类型
     if (!file.type.startsWith("image/")) {
       setError("请上传图片文件");
@@ -235,6 +257,10 @@ ${appearance ? `你的外貌特征：${appearance}` : ""}
     }
     if (!formData.greeting.trim()) {
       setError("请输入开场白");
+      return;
+    }
+    if (!formData.appearance.trim()) {
+      setError("请输入外貌描述（用于生成角色图片）");
       return;
     }
 
@@ -326,6 +352,21 @@ ${appearance ? `你的外貌特征：${appearance}` : ""}
               {error}
             </div>
           )}
+
+          {/* AI助手入口 */}
+          <div className="bg-gradient-to-r from-[#A8D8EA]/10 via-[#F8C8D4]/10 to-[#FFB6C1]/10 rounded-2xl p-6 border border-[#EDE5E0]/50">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-[#3D2C2E] mb-1 flex items-center gap-2">
+                  <span>✨</span> AI智能辅助
+                </h3>
+                <p className="text-sm text-[#9B8A8E]">
+                  上传参考图片，AI自动生成角色设定，快速创建理想角色
+                </p>
+              </div>
+              <ImageToPromptAssistant onApply={handleAIPromptsApply} />
+            </div>
+          </div>
 
           {/* 基本信息 */}
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-[#EDE5E0] space-y-4">
@@ -491,59 +532,42 @@ ${appearance ? `你的外貌特征：${appearance}` : ""}
               <span>🎨</span> 外貌与形象
             </h2>
 
-            {/* 头像上传 */}
+            {/* 头像系统 */}
             <div>
               <label className="block text-sm font-medium text-[#3D2C2E] mb-2">
-                角色头像
+                角色头像 <span className="text-red-500">*</span>
               </label>
-              <div className="flex items-start gap-4">
-                <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#F8C8D4]/20 to-[#FFB6C1]/20 flex items-center justify-center overflow-hidden border-2 border-dashed border-[#EDE5E0]">
-                  {formData.avatarImage ? (
-                    <img
-                      src={formData.avatarImage}
-                      alt="预览"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <span className="text-3xl">🎭</span>
-                  )}
-                </div>
-                <div className="flex-1">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    id="avatar-upload"
-                    className="hidden"
-                  />
-                  <label
-                    htmlFor="avatar-upload"
-                    className="inline-block px-4 py-2 bg-[#F5F0EB] text-[#3D2C2E] rounded-lg cursor-pointer hover:bg-[#F8C8D4]/30 transition-colors text-sm"
-                  >
-                    上传图片
-                  </label>
-                  <p className="text-xs text-[#9B8A8E] mt-1">
-                    支持 JPG、PNG、GIF，最大 5MB
-                  </p>
-                </div>
-              </div>
+              <AvatarSystem
+                gender={formData.gender}
+                selectedAvatar={formData.avatarImage}
+                characterTags={formData.tags}
+                appearance={formData.appearance}
+                onSelect={(url) =>
+                  setFormData((prev) => ({ ...prev, avatarImage: url }))
+                }
+                onCustomUpload={handleImageUpload}
+              />
             </div>
 
             {/* 外貌描述 */}
             <div>
               <label className="block text-sm font-medium text-[#3D2C2E] mb-2">
-                外貌描述
+                外貌描述 <span className="text-red-500">*</span>
               </label>
               <textarea
                 value={formData.appearance}
                 onChange={(e) =>
                   handleInputChange("appearance", e.target.value)
                 }
-                placeholder="描述角色的外貌特征，例如：黑色长发，大眼睛，穿白色连衣裙..."
+                placeholder="详细描述角色的外貌特征（必填，用于AI生成角色图片），例如：黑色长发扎低马尾，大眼睛圆脸，穿奶白色针织开衫和百褶裙，气质甜美可爱..."
                 rows={3}
                 className="w-full px-4 py-3 bg-[#F5F0EB]/50 border border-[#EDE5E0] rounded-xl text-[#3D2C2E] placeholder:text-[#9B8A8E]/60 focus:border-[#F8C8D4] focus:ring-2 focus:ring-[#F8C8D4]/20 outline-none transition-all resize-none"
                 maxLength={500}
               />
+              <p className="mt-2 text-xs text-[#9B8A8E]">
+                💡
+                详细的描述能让AI更准确地生成角色的照片，包括发型、五官、服装、气质等
+              </p>
             </div>
           </div>
 

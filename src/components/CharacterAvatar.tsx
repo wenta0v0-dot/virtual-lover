@@ -122,7 +122,7 @@ export default function CharacterAvatar({
       <div className="absolute inset-0 flex items-center justify-center">
         {hasImage ? (
           <img
-            src={avatar}
+            src={avatar ?? undefined}
             alt={name}
             className="w-full h-full object-cover relative z-10"
             onError={(e) => {

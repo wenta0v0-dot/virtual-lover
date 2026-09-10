@@ -20,7 +20,7 @@ async function testDatabase() {
     const allUsers = await db.select().from(users);
     console.log(`   ✅ 找到 ${allUsers.length} 个用户`);
     if (allUsers.length > 0) {
-      console.log(`   👤 最新用户: ${allUsers[0].email}`);
+      console.log(`   👤 最新用户: ${allUsers[0].phone}`);
     }
 
     console.log("\n2️⃣  测试 chat_sessions 表...");

@@ -3,9 +3,24 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
+import EmojiAvatar from "./EmojiAvatar";
 
 interface CustomCharacter {
-  id: string;
+  id: number;
   name: string;
   title: string;
   tags: string[];
@@ -27,6 +42,59 @@ export default function MyVirtualLovers() {
   const { user } = useAuth(true);
   const [characters, setCharacters] = useState<CustomCharacter[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
+  async function handleDeleteCharacter(
+    characterId: number,
+    characterName: string,
+  ) {
+    setDeletingId(characterId);
+
+    try {
+      // 处理 custom- 前缀的 ID
+      const numericId = String(characterId).replace("custom-", "");
+
+      const res = await fetch(`/api/characters/${numericId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        toast.error(result.error || "删除失败");
+        return;
+      }
+
+      toast.success(`"${characterName}" 已被删除`);
+
+      // 从列表中移除已删除的角色
+      setCharacters((prev) => prev.filter((c) => c.id !== characterId));
+    } catch (error) {
+      console.error("[DeleteCharacter] Error:", error);
+      toast.error("网络错误，请稍后重试");
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
+  // 刷新角色列表
+  async function refreshCharacters() {
+    if (!user) return;
+
+    try {
+      const response = await fetch("/api/characters/custom", {
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setCharacters(data.characters || []);
+      }
+    } catch (error) {
+      console.error("[MyVirtualLovers] 刷新失败:", error);
+    }
+  }
 
   const maleCharacters = characters
     .filter((c) => c.gender === "male")
@@ -137,59 +205,126 @@ export default function MyVirtualLovers() {
           {maleCharacters.length > 0 ? (
             <div className="p-4 grid grid-cols-2 gap-3">
               {maleCharacters.map((character) => (
-                <button
+                <div
                   key={character.id}
-                  onClick={() => router.push(`/chat/${character.id}`)}
                   className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-gray-50 to-white p-3 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 border border-[#E5E7EB]"
                 >
-                  {/* Avatar */}
-                  <div className="relative mx-auto mb-2 w-16 h-16 rounded-full overflow-hidden ring-2 ring-[#A8D8EA]/30 group-hover:ring-[#A8D8EA] transition-all">
-                    {character.avatarImage ? (
-                      <img
-                        src={character.avatarImage}
-                        alt={character.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = "none";
-                        }}
-                      />
-                    ) : (
-                      <div
-                        className="w-full h-full flex items-center justify-center text-3xl"
-                        style={{ backgroundColor: `${character.color}20` }}
-                      >
-                        {character.avatar}
-                      </div>
-                    )}
+                  {/* Delete Button - appears on hover */}
+                  <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className={`h-7 w-7 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-full ${
+                            deletingId === character.id ? "animate-pulse" : ""
+                          }`}
+                          disabled={deletingId === character.id}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
 
-                    {/* Online indicator */}
-                    <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-400 rounded-full ring-2 ring-white" />
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            确定要删除这个角色吗？
+                          </AlertDialogTitle>
+                          <AlertDialogDescription asChild>
+                            <div className="space-y-2">
+                              <div>
+                                您即将删除角色：
+                                <strong>{character.name}</strong>
+                              </div>
+                              <div className="text-sm text-orange-600 bg-orange-50 p-2 rounded-md border border-orange-200">
+                                ⚠️
+                                此操作将同时删除与该角色的所有聊天记录，且无法恢复！
+                              </div>
+                            </div>
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>取消</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() =>
+                              handleDeleteCharacter(
+                                character.id,
+                                character.name,
+                              )
+                            }
+                            className="bg-red-500 hover:bg-red-600 text-white"
+                            disabled={deletingId === character.id}
+                          >
+                            {deletingId === character.id
+                              ? "删除中..."
+                              : "确认删除"}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
 
-                  {/* Info */}
-                  <div className="text-center">
-                    <h4 className="font-semibold text-sm text-[#3D2C2E] truncate group-hover:text-[#A8D8EA] transition-colors">
-                      {character.name}
-                    </h4>
-                    <p className="text-xs text-[#9B8A8E] truncate mt-0.5">
-                      {character.title}
-                    </p>
-
-                    {/* Status badge */}
-                    <div
-                      className="mt-1.5 inline-block px-2 py-0.5 rounded-full text-[10px] font-medium"
-                      style={{
-                        backgroundColor: `${character.color}15`,
-                        color: character.color,
-                      }}
-                    >
-                      {character.status || "在线"}
+                  {/* Clickable area for chat */}
+                  <button
+                    onClick={() => router.push(`/chat/${character.id}`)}
+                    className="w-full"
+                  >
+                    {/* Avatar */}
+                    <div className="relative mx-auto mb-2">
+                      {character.avatarImage ? (
+                        <div className="relative w-16 h-16 rounded-full overflow-hidden ring-2 ring-[#A8D8EA]/30 group-hover:ring-[#A8D8EA] transition-all">
+                          <img
+                            src={character.avatarImage}
+                            alt={character.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display =
+                                "none";
+                            }}
+                          />
+                          {/* Online indicator */}
+                          <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-400 rounded-full ring-2 ring-white" />
+                        </div>
+                      ) : (
+                        <div className="relative">
+                          <EmojiAvatar
+                            name={character.name}
+                            gender={character.gender}
+                            size="lg"
+                            className="rounded-full ring-2 ring-[#A8D8EA]/30 group-hover:ring-[#A8D8EA] transition-all"
+                          />
+                          {/* Online indicator */}
+                          <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-400 rounded-full ring-2 ring-white" />
+                        </div>
+                      )}
                     </div>
-                  </div>
 
-                  {/* Hover overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                </button>
+                    {/* Info */}
+                    <div className="text-center">
+                      <h4 className="font-semibold text-sm text-[#3D2C2E] truncate group-hover:text-[#A8D8EA] transition-colors">
+                        {character.name}
+                      </h4>
+                      <p className="text-xs text-[#9B8A8E] truncate mt-0.5">
+                        {character.title}
+                      </p>
+
+                      {/* Status badge */}
+                      <div
+                        className="mt-1.5 inline-block px-2 py-0.5 rounded-full text-[10px] font-medium"
+                        style={{
+                          backgroundColor: `${character.color}15`,
+                          color: character.color,
+                        }}
+                      >
+                        {character.status || "在线"}
+                      </div>
+                    </div>
+
+                    {/* Hover overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                  </button>
+                </div>
               ))}
             </div>
           ) : (
@@ -263,59 +398,121 @@ export default function MyVirtualLovers() {
           {femaleCharacters.length > 0 ? (
             <div className="p-4 grid grid-cols-2 gap-3">
               {femaleCharacters.map((character) => (
-                <button
+                <div
                   key={character.id}
-                  onClick={() => router.push(`/chat/${character.id}`)}
                   className="group relative overflow-hidden rounded-xl bg-gradient-to-br from-gray-50 to-white p-3 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 border border-[#E5E7EB]"
                 >
-                  {/* Avatar */}
-                  <div className="relative mx-auto mb-2 w-16 h-16 rounded-full overflow-hidden ring-2 ring-[#FFB6C1]/30 group-hover:ring-[#FFB6C1] transition-all">
-                    {character.avatarImage ? (
-                      <img
-                        src={character.avatarImage}
-                        alt={character.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = "none";
-                        }}
-                      />
-                    ) : (
-                      <div
-                        className="w-full h-full flex items-center justify-center text-3xl"
-                        style={{ backgroundColor: `${character.color}20` }}
-                      >
-                        {character.avatar}
-                      </div>
-                    )}
+                  {/* Delete Button - appears on hover */}
+                  <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className={`h-7 w-7 text-red-500 hover:text-red-600 hover:bg-red-50 rounded-full ${
+                            deletingId === character.id ? "animate-pulse" : ""
+                          }`}
+                          disabled={deletingId === character.id}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
 
-                    {/* Online indicator */}
-                    <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-400 rounded-full ring-2 ring-white" />
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            确定要删除这个角色吗？
+                          </AlertDialogTitle>
+                          <AlertDialogDescription asChild>
+                            <div className="space-y-2">
+                              <div>
+                                您即将删除角色：
+                                <strong>{character.name}</strong>
+                              </div>
+                              <div className="text-sm text-orange-600 bg-orange-50 p-2 rounded-md border border-orange-200">
+                                ⚠️
+                                此操作将同时删除与该角色的所有聊天记录，且无法恢复！
+                              </div>
+                            </div>
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>取消</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() =>
+                              handleDeleteCharacter(
+                                character.id,
+                                character.name,
+                              )
+                            }
+                            className="bg-red-500 hover:bg-red-600 text-white"
+                            disabled={deletingId === character.id}
+                          >
+                            {deletingId === character.id
+                              ? "删除中..."
+                              : "确认删除"}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
 
-                  {/* Info */}
-                  <div className="text-center">
-                    <h4 className="font-semibold text-sm text-[#3D2C2E] truncate group-hover:text-[#FFB6C1] transition-colors">
-                      {character.name}
-                    </h4>
-                    <p className="text-xs text-[#9B8A8E] truncate mt-0.5">
-                      {character.title}
-                    </p>
+                  {/* Clickable area for chat */}
+                  <button
+                    onClick={() => router.push(`/chat/${character.id}`)}
+                    className="w-full"
+                  >
+                    {/* Avatar */}
+                    <div className="relative mx-auto mb-2 w-16 h-16 rounded-full overflow-hidden ring-2 ring-[#FFB6C1]/30 group-hover:ring-[#FFB6C1] transition-all">
+                      {character.avatarImage ? (
+                        <img
+                          src={character.avatarImage}
+                          alt={character.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display =
+                              "none";
+                          }}
+                        />
+                      ) : (
+                        <div
+                          className="w-full h-full flex items-center justify-center text-3xl"
+                          style={{ backgroundColor: `${character.color}20` }}
+                        >
+                          {character.avatar}
+                        </div>
+                      )}
 
-                    {/* Status badge */}
-                    <div
-                      className="mt-1.5 inline-block px-2 py-0.5 rounded-full text-[10px] font-medium"
-                      style={{
-                        backgroundColor: `${character.color}15`,
-                        color: character.color,
-                      }}
-                    >
-                      {character.status || "在线"}
+                      {/* Online indicator */}
+                      <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-400 rounded-full ring-2 ring-white" />
                     </div>
-                  </div>
 
-                  {/* Hover overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                </button>
+                    {/* Info */}
+                    <div className="text-center">
+                      <h4 className="font-semibold text-sm text-[#3D2C2E] truncate group-hover:text-[#FFB6C1] transition-colors">
+                        {character.name}
+                      </h4>
+                      <p className="text-xs text-[#9B8A8E] truncate mt-0.5">
+                        {character.title}
+                      </p>
+
+                      {/* Status badge */}
+                      <div
+                        className="mt-1.5 inline-block px-2 py-0.5 rounded-full text-[10px] font-medium"
+                        style={{
+                          backgroundColor: `${character.color}15`,
+                          color: character.color,
+                        }}
+                      >
+                        {character.status || "在线"}
+                      </div>
+                    </div>
+
+                    {/* Hover overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                  </button>
+                </div>
               ))}
             </div>
           ) : (

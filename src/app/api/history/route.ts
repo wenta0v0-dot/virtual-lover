@@ -13,10 +13,11 @@ export async function GET() {
 
     const historyWithMessages = await Promise.all(
       sessions.map(async (sessionRecord) => {
-        const messages = await getChatHistory(sessionRecord.id);
+        // 在 SQL 层限制条数，避免长会话全量加载
+        const messages = await getChatHistory(sessionRecord.id, 50);
         return {
           ...sessionRecord,
-          messages: messages.slice(0, 50),
+          messages,
         };
       }),
     );

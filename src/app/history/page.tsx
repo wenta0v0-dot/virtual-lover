@@ -103,7 +103,7 @@ export default function HistoryPage() {
   const filteredHistory = historyData.filter(
     (item) =>
       item.characterName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.lastMessage.toLowerCase().includes(searchQuery.toLowerCase()),
+      (item.lastMessage ?? "").toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   function handleChatClick(characterId: string) {

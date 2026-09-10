@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { getCharactersByGender, type Character } from "@/lib/characters";
 import UserMenu from "@/components/UserMenu";
 import MyVirtualLovers from "@/components/MyVirtualLovers";
@@ -65,9 +66,12 @@ export default function HomePage() {
               >
                 <div className="relative shrink-0">
                   <div className="h-20 w-20 rounded-2xl overflow-hidden shadow-md ring-2 ring-[#A8D8EA]/30">
-                    <img
+                    <Image
                       src="/characters/gentle-senpai.png"
                       alt="男朋友"
+                      width={160}
+                      height={160}
+                      priority
                       className="h-full w-full object-cover"
                     />
                   </div>
@@ -126,9 +130,12 @@ export default function HomePage() {
               >
                 <div className="relative shrink-0">
                   <div className="h-20 w-20 rounded-2xl overflow-hidden shadow-md ring-2 ring-[#FFB6C1]/30">
-                    <img
+                    <Image
                       src="/characters/sweet-junior.png"
                       alt="女朋友"
+                      width={160}
+                      height={160}
+                      priority
                       className="h-full w-full object-cover"
                     />
                   </div>

@@ -1,10 +1,15 @@
 import { NextRequest } from "next/server";
-import { sendVerificationCode } from "@/lib/email";
+import { sendSmsCode } from "@/lib/sms";
 import { isDevMode, generateDevCode } from "@/lib/dev-auth";
 import { z } from "zod";
 
+const phoneRegex = /^1[3-9]\d{9}$/;
+
 const sendCodeSchema = z.object({
-  email: z.string().email("请输入有效的邮箱地址"),
+  phone: z
+    .string()
+    .min(1, "请输入手机号码")
+    .regex(phoneRegex, "请输入有效的11位手机号码"),
 });
 
 function generateCode(): string {
@@ -23,10 +28,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { email } = result.data;
+    const { phone } = result.data;
 
     if (isDevMode()) {
-      const code = generateDevCode(email);
+      const code = generateDevCode(phone);
       return Response.json({
         success: true,
         message: "验证码已生成（开发模式）",
@@ -45,7 +50,7 @@ export async function POST(request: NextRequest) {
       .from(verificationCodes)
       .where(
         and(
-          eq(verificationCodes.email, email),
+          eq(verificationCodes.phone, phone),
           gt(verificationCodes.createdAt, oneMinuteAgo),
         ),
       )
@@ -62,12 +67,12 @@ export async function POST(request: NextRequest) {
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
     await db.insert(verificationCodes).values({
-      email,
+      phone,
       code,
       expiresAt,
     });
 
-    await sendVerificationCode(email, code);
+    await sendSmsCode(phone, code);
 
     return Response.json({ success: true, message: "验证码已发送" });
   } catch (error) {
