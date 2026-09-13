@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { MessageCircle } from "lucide-react";
 import UserMenu from "@/components/UserMenu";
 import CharacterAvatar from "@/components/CharacterAvatar";
 import { useAuth } from "@/hooks/useAuth";
@@ -177,7 +178,9 @@ export default function HistoryPage() {
           </div>
         ) : filteredHistory.length === 0 ? (
           <div className="text-center py-20">
-            <div className="text-5xl mb-4">💬</div>
+            <div className="mb-4 flex justify-center text-[#E0D5D0]">
+              <MessageCircle size={52} strokeWidth={1.2} />
+            </div>
             <h3 className="text-lg font-semibold text-[#3D2C2E] mb-2">
               {searchQuery ? "未找到相关记录" : "暂无聊天记录"}
             </h3>

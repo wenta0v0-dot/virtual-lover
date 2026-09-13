@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { Heart, Sparkles } from "lucide-react";
 import { getCharactersByGender, type Character } from "@/lib/characters";
 import UserMenu from "@/components/UserMenu";
 import MyVirtualLovers from "@/components/MyVirtualLovers";
@@ -14,6 +15,28 @@ export default function HomePage() {
   const router = useRouter();
   const [selectedGender, setSelectedGender] = useState<Gender>(null);
   const { user, loading: authLoading } = useAuth(true); // requireAuth = true
+  const [proactive, setProactive] = useState<{
+    characterId: string;
+    characterName: string;
+    characterAvatar: string | null;
+    characterColor?: string;
+    text: string;
+  } | null>(null);
+
+  // 角色主动问候：登录后检查是否有超过6小时未联系的角色发来消息
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    fetch("/api/chat/proactive", { credentials: "include" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data?.greeting) setProactive(data.greeting);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
 
   const filteredCharacters = selectedGender
     ? getCharactersByGender(selectedGender)
@@ -50,13 +73,54 @@ export default function HomePage() {
         <div className="relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-[#F8C8D4]/30 to-transparent" />
           <div className="relative px-6 pt-12 pb-10 text-center">
-            <div className="mb-3 text-4xl">💌</div>
+            <div className="mb-3 flex justify-center">
+              <Heart size={40} strokeWidth={1.5} className="text-[#F8A8BB]" fill="currentColor" />
+            </div>
             <h1 className="mb-2 text-2xl font-semibold text-[#3D2C2E]">
               虚拟恋人
             </h1>
             <p className="mb-10 text-sm text-[#9B8A8E]">
               选择你想要的恋爱对象，开始专属故事
             </p>
+
+            {/* 角色主动问候卡片 */}
+            {proactive && (
+              <button
+                onClick={() => {
+                  const charId = proactive.characterId;
+                  setProactive(null);
+                  router.push(`/chat/${charId}`);
+                }}
+                className="mb-8 w-full max-w-sm mx-auto block text-left rounded-2xl bg-white p-4 shadow-md border border-[#F8C8D4]/40 hover:shadow-lg transition-all animate-pulse-slow"
+              >
+                <div className="flex items-start gap-3">
+                  <div className="relative shrink-0">
+                    <div
+                      className="h-11 w-11 rounded-full flex items-center justify-center text-xl shadow-sm ring-2 ring-white"
+                      style={{
+                        backgroundColor: proactive.characterColor || "#F8A8BB",
+                      }}
+                    >
+                      {proactive.characterAvatar || "💗"}
+                    </div>
+                    <span className="absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full bg-red-500 ring-2 ring-white" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-sm font-semibold text-[#3D2C2E]">
+                        {proactive.characterName}
+                      </span>
+                      <span className="text-[11px] text-[#F8A8BB]">
+                        想你了，发来一条消息
+                      </span>
+                    </div>
+                    <p className="mt-0.5 text-xs text-[#9B8A8E] line-clamp-2">
+                      {proactive.text}
+                    </p>
+                  </div>
+                </div>
+              </button>
+            )}
 
             {/* Gender selection cards */}
             <div className="mx-auto flex max-w-sm flex-col gap-4">
@@ -194,8 +258,8 @@ export default function HomePage() {
               onClick={() => router.push("/create-character")}
               className="mt-6 w-full group flex items-center justify-center gap-3 p-4 rounded-2xl bg-gradient-to-r from-[#F8C8D4]/20 to-[#FFB6C1]/20 border-2 border-dashed border-[#F8C8D4]/50 hover:border-[#F8C8D4] hover:from-[#F8C8D4]/30 hover:to-[#FFB6C1]/30 transition-all"
             >
-              <span className="text-2xl group-hover:scale-110 transition-transform">
-                ✨
+              <span className="text-[#F8A8BB] group-hover:scale-110 transition-transform">
+                <Sparkles size={26} strokeWidth={1.8} />
               </span>
               <div className="text-left">
                 <h3 className="font-semibold text-[#3D2C2E]">创建自定义角色</h3>

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { CircleUserRound, Heart, RotateCcw } from "lucide-react";
 import { characters, getCharacter, type Character } from "@/lib/characters";
 import UserMenu from "@/components/UserMenu";
 import ImageUploader from "@/components/ImageUploader";
@@ -16,6 +17,18 @@ interface Message {
   imageError?: string;
   imageRetryable?: boolean;
   isStreaming?: boolean;
+}
+
+interface AffinityData {
+  points: number;
+  chatDays: number;
+  totalMessages: number;
+  stage: string;
+  level: number;
+  maxLevel: number;
+  nextStage: string | null;
+  progress: number;
+  pointsToNext: number;
 }
 
 interface CustomCharacterData {
@@ -51,6 +64,7 @@ export default function ChatPage() {
   const [isSending, setIsSending] = useState(false);
   const [showImageUploader, setShowImageUploader] = useState(false);
   const [userAvatar, setUserAvatar] = useState<string | null>(null); // 新增：用户头像
+  const [affinity, setAffinity] = useState<AffinityData | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const initializedCharacterIdRef = useRef<string | null>(null);
@@ -156,35 +170,74 @@ export default function ChatPage() {
   useEffect(() => {
     if (loadingCustomChar) return;
     if (!character) return;
+    if (!user) return; // 等登录态就绪后再初始化会话
 
     if (initializedCharacterIdRef.current === character.id) return;
 
     // Mark this character as initialized
     initializedCharacterIdRef.current = character.id;
 
-    // Reset messages for new character
-    setMessages([]);
+    async function initSession(
+      char: Character | CustomCharacterData,
+    ): Promise<void> {
+      // 尝试恢复历史消息；没有历史时才播开场白
+      try {
+        const res = await fetch(
+          `/api/chat/session?characterId=${encodeURIComponent(char.id)}`,
+          { credentials: "include" },
+        );
 
-    const greetingId = crypto.randomUUID();
-    setMessages([
-      {
-        id: greetingId,
-        role: "assistant",
-        text: "",
-        isStreaming: true,
-      },
-    ]);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.affinity) {
+            setAffinity(data.affinity);
+          }
+          if (Array.isArray(data.messages) && data.messages.length > 0) {
+            setMessages(
+              data.messages.map(
+                (m: {
+                  id: string;
+                  role: string;
+                  text: string;
+                  imageUrl?: string;
+                }) => ({
+                  id: m.id,
+                  role: m.role === "user" ? "user" : "assistant",
+                  text: m.text,
+                  imageUrl: m.imageUrl,
+                }),
+              ),
+            );
+            return;
+          }
+        }
+      } catch (error) {
+        console.error("[Chat] 恢复历史消息失败:", error);
+      }
 
-    // Stream greeting
-    streamChat(
-      [
-        { role: "system", content: character.systemPrompt },
-        { role: "user", content: character.greeting },
-      ],
-      greetingId,
-      character,
-    );
-  }, [character, loadingCustomChar]); // ✅ 保持依赖数组大小不变
+      // 无历史：开场白流式播报
+      const greetingId = crypto.randomUUID();
+      setMessages([
+        {
+          id: greetingId,
+          role: "assistant",
+          text: "",
+          isStreaming: true,
+        },
+      ]);
+
+      streamChat(
+        [
+          { role: "system", content: char.systemPrompt },
+          { role: "user", content: char.greeting },
+        ],
+        greetingId,
+        char,
+      );
+    }
+
+    initSession(character);
+  }, [character, loadingCustomChar, user]); // ✅ 保持依赖数组大小不变
 
   // ✅ 条件返回（必须在所有Hooks之后）
   if (authLoading) {
@@ -507,7 +560,21 @@ export default function ChatPage() {
       character,
     );
 
+    refreshAffinity();
     setIsSending(false);
+  }
+
+  // 消息落库后同步亲密度显示
+  function refreshAffinity() {
+    if (!character) return;
+    fetch(`/api/chat/session?characterId=${encodeURIComponent(character.id)}`, {
+      credentials: "include",
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.affinity) setAffinity(data.affinity);
+      })
+      .catch(() => {});
   }
 
   // Send image message
@@ -589,6 +656,7 @@ export default function ChatPage() {
         ),
       );
     } finally {
+      refreshAffinity();
       setIsSending(false);
     }
   }
@@ -700,7 +768,7 @@ export default function ChatPage() {
             )}
           </div>
 
-          <div className="flex flex-col">
+          <div className="flex flex-1 flex-col">
             <span className="text-base font-semibold text-[#3D2C2E]">
               {character.name}
             </span>
@@ -708,6 +776,25 @@ export default function ChatPage() {
               <span className="text-xs text-[#9B8A8E]/80 animate-pulse-slow">
                 {character.status}
               </span>
+            )}
+            {affinity && (
+              <div className="mt-1 flex items-center gap-1.5">
+                <Heart size={11} className="text-[#F8A8BB]" fill="currentColor" />
+                <span className="text-[11px] font-medium text-[#F8A8BB]">
+                  {affinity.stage}
+                </span>
+                <div className="h-1 w-16 overflow-hidden rounded-full bg-[#F8C8D4]/25">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-[#F8A8BB] to-[#FFB6C1] transition-all duration-500"
+                    style={{ width: `${affinity.progress}%` }}
+                  />
+                </div>
+                {affinity.nextStage && (
+                  <span className="text-[10px] text-[#9B8A8E]/70">
+                    距{affinity.nextStage}
+                  </span>
+                )}
+              </div>
             )}
           </div>
         </div>
@@ -880,7 +967,7 @@ function MessageBubble({
               display: "none",
             }}
           >
-            👤
+            <CircleUserRound size={22} className="text-white/90" />
           </div>
         </div>
       ) : (
@@ -890,7 +977,11 @@ function MessageBubble({
             backgroundColor: isUser ? "#95EC69" : character.color,
           }}
         >
-          {isUser ? "👤" : character.avatar}
+          {isUser ? (
+            <CircleUserRound size={22} className="text-white/90" />
+          ) : (
+            character.avatar
+          )}
         </div>
       )}
 
@@ -947,7 +1038,8 @@ function MessageBubble({
                 onClick={() => onRetryImage(message.id)}
                 className="rounded-full bg-red-100 px-4 py-1.5 text-sm text-red-700 transition-colors hover:bg-red-200"
               >
-                🔄 重新生成
+                <RotateCcw size={13} className="inline mr-1" />
+                重新生成
               </button>
             )}
           </div>

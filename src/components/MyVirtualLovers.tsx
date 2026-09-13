@@ -2,6 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import {
+  Heart,
+  HeartHandshake,
+  HeartCrack,
+  Sparkles,
+  TriangleAlert,
+  Lightbulb,
+} from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import {
@@ -152,7 +160,7 @@ export default function MyVirtualLovers() {
       {/* Section Title */}
       <div className="text-center px-6">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[#F8C8D4]/20 to-[#A8D8EA]/20 border border-[#F8C8D4]/30">
-          <span className="text-lg">💕</span>
+          <Heart size={18} className="text-[#F8A8BB]" fill="currentColor" />
           <span className="text-sm font-medium text-[#3D2C2E]">
             我的虚拟恋人
           </span>
@@ -168,7 +176,7 @@ export default function MyVirtualLovers() {
           {/* Header */}
           <div className="bg-gradient-to-r from-[#A8D8EA] to-[#87CEEB] px-5 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-xl">👨‍❤️‍👨</span>
+              <HeartHandshake size={22} className="text-white" />
               <div>
                 <h3 className="text-base font-bold text-white drop-shadow-sm">
                   你创建的男朋友
@@ -236,8 +244,8 @@ export default function MyVirtualLovers() {
                                 您即将删除角色：
                                 <strong>{character.name}</strong>
                               </div>
-                              <div className="text-sm text-orange-600 bg-orange-50 p-2 rounded-md border border-orange-200">
-                                ⚠️
+                              <div className="text-sm text-orange-600 bg-orange-50 p-2 rounded-md border border-orange-200 flex items-start gap-1.5">
+                                <TriangleAlert size={15} className="mt-0.5 shrink-0" />
                                 此操作将同时删除与该角色的所有聊天记录，且无法恢复！
                               </div>
                             </div>
@@ -329,13 +337,13 @@ export default function MyVirtualLovers() {
             </div>
           ) : (
             <div className="p-8 text-center">
-              <div className="text-4xl mb-2">💔</div>
+              <div className="mb-2 flex justify-center text-[#A8D8EA]/60"><HeartCrack size={40} strokeWidth={1.5} /></div>
               <p className="text-sm text-[#9B8A8E] mb-3">还没有创建男朋友呢</p>
               <button
                 onClick={() => router.push(`/create-character?gender=male`)}
                 className="inline-flex items-center gap-1 px-4 py-2 rounded-full bg-[#A8D8EA] text-white text-sm font-medium hover:bg-[#87CEEB] transition-colors"
               >
-                <span>✨</span>
+                <Sparkles size={14} />
                 创建第一个男朋友
               </button>
             </div>
@@ -361,7 +369,7 @@ export default function MyVirtualLovers() {
           {/* Header */}
           <div className="bg-gradient-to-r from-[#FFB6C1] to-[#FF69B4] px-5 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-xl">👩‍❤️‍👩</span>
+              <HeartHandshake size={22} className="text-white" />
               <div>
                 <h3 className="text-base font-bold text-white drop-shadow-sm">
                   你创建的女朋友
@@ -429,8 +437,8 @@ export default function MyVirtualLovers() {
                                 您即将删除角色：
                                 <strong>{character.name}</strong>
                               </div>
-                              <div className="text-sm text-orange-600 bg-orange-50 p-2 rounded-md border border-orange-200">
-                                ⚠️
+                              <div className="text-sm text-orange-600 bg-orange-50 p-2 rounded-md border border-orange-200 flex items-start gap-1.5">
+                                <TriangleAlert size={15} className="mt-0.5 shrink-0" />
                                 此操作将同时删除与该角色的所有聊天记录，且无法恢复！
                               </div>
                             </div>
@@ -517,13 +525,13 @@ export default function MyVirtualLovers() {
             </div>
           ) : (
             <div className="p-8 text-center">
-              <div className="text-4xl mb-2">💗</div>
+              <div className="mb-2 flex justify-center text-[#FFB6C1]/60"><HeartCrack size={40} strokeWidth={1.5} /></div>
               <p className="text-sm text-[#9B8A8E] mb-3">还没有创建女朋友呢</p>
               <button
                 onClick={() => router.push(`/create-character?gender=female`)}
                 className="inline-flex items-center gap-1 px-4 py-2 rounded-full bg-[#FFB6C1] text-white text-sm font-medium hover:bg-[#FF69B4] transition-colors"
               >
-                <span>✨</span>
+                <Sparkles size={14} />
                 创建第一个女朋友
               </button>
             </div>
@@ -546,8 +554,9 @@ export default function MyVirtualLovers() {
       {/* Limit reached warning */}
       {!canCreateMale && !canCreateFemale && (
         <div className="mx-4 p-4 rounded-xl bg-yellow-50 border border-yellow-200 text-center">
-          <p className="text-sm text-yellow-800">
-            💡 已达到上限：最多可创建 {MAX_CHARACTERS_PER_GENDER} 个男朋友和{" "}
+          <p className="text-sm text-yellow-800 flex items-center justify-center gap-1.5">
+            <Lightbulb size={15} />
+            已达到上限：最多可创建 {MAX_CHARACTERS_PER_GENDER} 个男朋友和{" "}
             {MAX_CHARACTERS_PER_GENDER} 个女朋友
           </p>
         </div>

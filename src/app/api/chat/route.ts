@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { getSession } from "@/lib/auth";
 import { streamChat, formatMessagesForFrontend } from "@/services/chat";
 import { getOrCreateChatSession, saveChatMessage } from "@/services/database";
+import { updateSessionMemoryIfDue } from "@/services/companion";
 
 export async function POST(request: NextRequest) {
   try {
@@ -49,6 +50,7 @@ export async function POST(request: NextRequest) {
     }
 
     let sessionId: number | null = null;
+    let memorySummary: string | null = null;
     if (characterId && characterName) {
       try {
         console.log("[Chat-API] 创建/获取聊天会话...");
@@ -59,7 +61,8 @@ export async function POST(request: NextRequest) {
           characterAvatar,
         );
         sessionId = sessionRecord.id;
-        console.log("[Chat-API] 会话ID:", sessionId);
+        memorySummary = sessionRecord.memorySummary ?? null;
+        console.log("[Chat-API] 会话ID:", sessionId, "有记忆:", Boolean(memorySummary));
 
         const lastUserMessage = messages
           .filter((m: { role: string }) => m.role === "user")
@@ -85,6 +88,15 @@ export async function POST(request: NextRequest) {
 
     console.log("[Chat-API] 格式化消息并调用AI...");
     const formattedMessages = formatMessagesForFrontend(messages);
+
+    // 注入长期记忆：让角色"记得"跨会话的用户画像
+    if (memorySummary) {
+      formattedMessages.unshift({
+        role: "system",
+        content: `【你们的过往记忆】以下是你在长期相处中记住的关于对方的信息，请在聊天中自然运用（记得对方的称呼、喜好和约定），但不要生硬复述：\n${memorySummary}`,
+      });
+      console.log("[Chat-API] 已注入长期记忆");
+    }
     console.log("[Chat-API] 格式化后的消息数量:", formattedMessages.length);
 
     const chatStream = streamChat({
@@ -112,6 +124,7 @@ export async function POST(request: NextRequest) {
                   ).catch((err) =>
                     console.error("[Chat-API] Save message error:", err),
                   );
+                  void updateSessionMemoryIfDue(sessionId);
                 } catch (err) {
                   console.error(
                     "[Chat-API] Failed to save assistant message:",
@@ -142,6 +155,7 @@ export async function POST(request: NextRequest) {
               ).catch((err) =>
                 console.error("[Chat-API] Save message error:", err),
               );
+              void updateSessionMemoryIfDue(sessionId);
             } catch (err) {
               console.error(
                 "[Chat-API] Failed to save assistant message:",

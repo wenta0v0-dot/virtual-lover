@@ -3,7 +3,15 @@
 import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Loader2, Sparkles, Upload, ImageIcon, Wand2 } from "lucide-react";
+import {
+  Loader2,
+  Sparkles,
+  Upload,
+  ImageIcon,
+  Wand2,
+  Lightbulb,
+  TriangleAlert,
+} from "lucide-react";
 
 // 头像选项接口
 interface AvatarOption {
@@ -248,8 +256,9 @@ export default function AvatarSystem({
       {activeTab === "preset" && (
         <div className="space-y-3">
           {characterTags.length > 0 && (
-            <p className="text-xs text-[#9B8A8E]">
-              💡 根据角色标签为您智能推荐
+            <p className="text-xs text-[#9B8A8E] flex items-center gap-1">
+              <Lightbulb size={13} className="text-[#A8C8EA]" />
+              根据角色标签为您智能推荐
             </p>
           )}
           <div className="grid grid-cols-3 gap-3">
@@ -319,8 +328,9 @@ export default function AvatarSystem({
               )}
             </Button>
             {!appearance && (
-              <p className="text-xs text-orange-500">
-                ⚠️ 请先在下方填写外貌描述
+              <p className="text-xs text-orange-500 flex items-center gap-1">
+                <TriangleAlert size={13} />
+                请先在下方填写外貌描述
               </p>
             )}
           </div>

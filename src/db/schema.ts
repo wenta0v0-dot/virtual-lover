@@ -52,6 +52,8 @@ export const chatSessions = pgTable(
     lastMessage: text("last_message"),
     messageCount: integer("message_count").notNull().default(0),
     isCustom: boolean("is_custom").notNull().default(false),
+    // 长期记忆：定期总结的关于用户的画像摘要，注入对话 system prompt
+    memorySummary: text("memory_summary"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

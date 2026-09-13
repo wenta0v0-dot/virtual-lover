@@ -1,6 +1,14 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import {
+  Settings,
+  ImagePlus,
+  CircleUserRound,
+  Pencil,
+  Smartphone,
+  Save,
+} from "lucide-react";
 
 interface UserSettings {
   id: number;
@@ -174,7 +182,10 @@ export default function AccountSettings({
             </svg>
           </button>
 
-          <h2 className="text-2xl font-bold text-[#3D2C2E]">⚙️ 账户设置</h2>
+          <h2 className="text-2xl font-bold text-[#3D2C2E] flex items-center gap-2">
+            <Settings size={22} className="text-[#F8A8BB]" />
+            账户设置
+          </h2>
           <p className="text-sm text-[#9B8A8E] mt-1">个性化你的心灵空间</p>
         </div>
 
@@ -189,7 +200,7 @@ export default function AccountSettings({
               {/* Avatar Section */}
               <div className="space-y-3">
                 <label className="text-sm font-semibold text-[#3D2C2E] flex items-center gap-2">
-                  <span>🖼️</span> 头像
+                  <ImagePlus size={16} className="text-[#F8A8BB]" /> 头像
                 </label>
 
                 <div className="flex items-center gap-4">
@@ -205,8 +216,8 @@ export default function AccountSettings({
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-3xl">
-                          👤
+                        <div className="w-full h-full flex items-center justify-center text-[#E0D5D0]">
+                          <CircleUserRound size={36} strokeWidth={1.5} />
                         </div>
                       )}
                     </div>
@@ -248,7 +259,7 @@ export default function AccountSettings({
               {/* Name Section */}
               <div className="space-y-3">
                 <label className="text-sm font-semibold text-[#3D2C2E] flex items-center gap-2">
-                  <span>✏️</span> 昵称
+                  <Pencil size={16} className="text-[#F8A8BB]" /> 昵称
                 </label>
 
                 <input
@@ -270,7 +281,7 @@ export default function AccountSettings({
               {/* Phone Display */}
               <div className="space-y-3">
                 <label className="text-sm font-semibold text-[#3D2C2E] flex items-center gap-2">
-                  <span>📱</span> 手机号
+                  <Smartphone size={16} className="text-[#F8A8BB]" /> 手机号
                 </label>
 
                 <div className="px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-[#9B8A8E]">
@@ -302,7 +313,10 @@ export default function AccountSettings({
                 保存中...
               </span>
             ) : (
-              "💾 保存设置"
+              <span className="flex items-center justify-center gap-2">
+                <Save size={16} />
+                保存设置
+              </span>
             )}
           </button>
 

@@ -1,6 +1,14 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
+import {
+  Drama,
+  CircleUserRound,
+  Palette,
+  Camera,
+  Lightbulb,
+  BookOpen,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -195,17 +203,17 @@ export default function ImageToPromptAssistant({
                   </div>
 
                   <div className="flex flex-wrap gap-2 justify-center text-xs text-[#9B8A8E]">
-                    <span className="px-3 py-1 bg-[#F5F0EB] rounded-full">
-                      🎭 动漫角色
+                    <span className="px-3 py-1 bg-[#F5F0EB] rounded-full inline-flex items-center gap-1">
+                      <Drama size={12} /> 动漫角色
                     </span>
-                    <span className="px-3 py-1 bg-[#F5F0EB] rounded-full">
-                      👤 真人照片
+                    <span className="px-3 py-1 bg-[#F5F0EB] rounded-full inline-flex items-center gap-1">
+                      <CircleUserRound size={12} /> 真人照片
                     </span>
-                    <span className="px-3 py-1 bg-[#F5F0EB] rounded-full">
-                      🎨 艺术画作
+                    <span className="px-3 py-1 bg-[#F5F0EB] rounded-full inline-flex items-center gap-1">
+                      <Palette size={12} /> 艺术画作
                     </span>
-                    <span className="px-3 py-1 bg-[#F5F0EB] rounded-full">
-                      📸 风格参考
+                    <span className="px-3 py-1 bg-[#F5F0EB] rounded-full inline-flex items-center gap-1">
+                      <Camera size={12} /> 风格参考
                     </span>
                   </div>
                 </div>
@@ -451,8 +459,8 @@ export default function ImageToPromptAssistant({
 
                 {/* 提示信息 */}
                 <div className="p-4 rounded-lg bg-gradient-to-r from-[#A8D8EA]/10 to-[#F8C8D4]/10 border border-[#A8D8EA]/20">
-                  <p className="text-xs text-[#9B8A8E] text-center">
-                    💡
+                  <p className="text-xs text-[#9B8A8E] flex items-start justify-center gap-1">
+                    <Lightbulb size={13} className="mt-0.5 shrink-0 text-[#A8C8EA]" />
                     提示：您可以单独复制任意字段，也可以点击“一键应用到表单”自动填充所有内容
                   </p>
                 </div>
@@ -462,8 +470,9 @@ export default function ImageToPromptAssistant({
             {/* 使用说明 */}
             {!generatedPrompts && (
               <div className="mt-8 p-4 rounded-lg bg-[#F5F0EB]/50 border border-[#EDE5E0]">
-                <h4 className="font-semibold text-[#3D2C2E] mb-2 text-sm">
-                  📖 使用说明
+                <h4 className="font-semibold text-[#3D2C2E] mb-2 text-sm flex items-center gap-1.5">
+                  <BookOpen size={15} className="text-[#A8C8EA]" />
+                  使用说明
                 </h4>
                 <ul className="space-y-1 text-xs text-[#9B8A8E] list-disc list-inside">
                   <li>

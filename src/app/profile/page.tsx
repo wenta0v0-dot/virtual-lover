@@ -2,6 +2,18 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import type { LucideIcon } from "lucide-react";
+import {
+  MessageCircle,
+  Drama,
+  Image as ImageIcon,
+  Heart,
+  Sparkles,
+  Settings,
+  Rocket,
+  BookOpen,
+  Activity,
+} from "lucide-react";
 import UserMenu from "@/components/UserMenu";
 import CharacterAvatar from "@/components/CharacterAvatar";
 import AccountSettings from "@/components/AccountSettings";
@@ -154,8 +166,9 @@ export default function ExperienceCenter() {
                 </svg>
               </button>
               <div>
-                <h1 className="text-xl font-bold text-[#3D2C2E]">
-                  ✨ 心灵空间
+                <h1 className="text-xl font-bold text-[#3D2C2E] flex items-center gap-2">
+                  <Sparkles size={20} className="text-[#F8A8BB]" />
+                  心灵空间
                 </h1>
                 <p className="text-xs text-[#9B8A8E]">你的虚拟恋人世界</p>
               </div>
@@ -191,25 +204,25 @@ export default function ExperienceCenter() {
             {/* Stats Cards */}
             <div className="grid grid-cols-2 gap-4">
               <StatCard
-                icon="💬"
+                icon={MessageCircle}
                 value={stats.totalMessages}
                 label="条消息"
                 color="from-[#F8C8D4] to-[#F8B8C4]"
               />
               <StatCard
-                icon="🎭"
+                icon={Drama}
                 value={stats.totalCharacters}
                 label="位角色"
                 color="from-[#C8D4F8] to-[#B8C8F8]"
               />
               <StatCard
-                icon="🖼️"
+                icon={ImageIcon}
                 value={stats.totalImages}
                 label="张图片"
                 color="from-[#D4F8C8] to-[#C8F8B8]"
               />
               <StatCard
-                icon="💕"
+                icon={Heart}
                 value={stats.totalSessions}
                 label="个故事"
                 color="from-[#F8D4C8] to-[#F8C8B8]"
@@ -226,19 +239,19 @@ export default function ExperienceCenter() {
             <TabButton
               active={activeTab === "overview"}
               onClick={() => setActiveTab("overview")}
-              icon="🌟"
+              icon={Sparkles}
               label="总览"
             />
             <TabButton
               active={activeTab === "chats"}
               onClick={() => setActiveTab("chats")}
-              icon="💬"
+              icon={MessageCircle}
               label="对话记录"
             />
             <TabButton
               active={activeTab === "gallery"}
               onClick={() => setActiveTab("gallery")}
-              icon="🖼️"
+              icon={ImageIcon}
               label="记忆画廊"
             />
           </div>
@@ -253,7 +266,7 @@ export default function ExperienceCenter() {
             {topCharacter && (
               <section className="bg-white/60 backdrop-blur-sm rounded-3xl p-6 shadow-sm border border-white/50">
                 <h3 className="text-lg font-bold text-[#3D2C2E] mb-4 flex items-center gap-2">
-                  <span>💝</span>
+                  <Heart size={18} className="text-[#F8A8BB]" fill="currentColor" />
                   最亲密的伙伴
                 </h3>
                 <div
@@ -288,7 +301,7 @@ export default function ExperienceCenter() {
             {/* Recent Activity */}
             <section>
               <h3 className="text-lg font-bold text-[#3D2C2E] mb-4 flex items-center gap-2">
-                <span>⚡</span>
+                <Activity size={18} className="text-[#A8C8EA]" />
                 最近动态
               </h3>
               <div className="grid gap-4">
@@ -304,12 +317,13 @@ export default function ExperienceCenter() {
 
             {/* Quick Actions */}
             <section className="bg-gradient-to-r from-[#F8C8D4]/20 to-[#C8D4F8]/20 rounded-3xl p-6">
-              <h3 className="text-lg font-bold text-[#3D2C2E] mb-4">
-                🚀 快速开始
+              <h3 className="text-lg font-bold text-[#3D2C2E] mb-4 flex items-center gap-2">
+                <Rocket size={18} className="text-[#F8A8BB]" />
+                快速开始
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <QuickActionButton
-                  icon="💬"
+                  icon={MessageCircle}
                   label="继续聊天"
                   onClick={() => {
                     if (topCharacter) {
@@ -321,12 +335,12 @@ export default function ExperienceCenter() {
                   primary
                 />
                 <QuickActionButton
-                  icon="🎭"
+                  icon={Drama}
                   label="认识新角色"
                   onClick={() => router.push("/")}
                 />
                 <QuickActionButton
-                  icon="🖼️"
+                  icon={ImageIcon}
                   label="生成图片"
                   onClick={() => {
                     if (topCharacter) {
@@ -337,7 +351,7 @@ export default function ExperienceCenter() {
                   }}
                 />
                 <QuickActionButton
-                  icon="⚙️"
+                  icon={Settings}
                   label="个人设置"
                   onClick={() => setShowSettings(true)}
                 />
@@ -348,8 +362,9 @@ export default function ExperienceCenter() {
 
         {activeTab === "chats" && (
           <div className="space-y-4">
-            <h3 className="text-lg font-bold text-[#3D2C2E] mb-4">
-              📖 对话历史
+            <h3 className="text-lg font-bold text-[#3D2C2E] mb-4 flex items-center gap-2">
+              <BookOpen size={18} className="text-[#A8C8EA]" />
+              对话历史
             </h3>
             {recentSessions.map((session) => (
               <ChatSessionCard
@@ -361,7 +376,7 @@ export default function ExperienceCenter() {
             ))}
             {recentSessions.length === 0 && (
               <EmptyState
-                icon="💬"
+                icon={MessageCircle}
                 title="还没有对话记录"
                 description="去和你的虚拟恋人聊聊天吧！"
                 actionLabel="开始对话"
@@ -373,8 +388,9 @@ export default function ExperienceCenter() {
 
         {activeTab === "gallery" && (
           <div>
-            <h3 className="text-lg font-bold text-[#3D2C2E] mb-4">
-              🖼️ 记忆画廊
+            <h3 className="text-lg font-bold text-[#3D2C2E] mb-4 flex items-center gap-2">
+              <ImageIcon size={18} className="text-[#F8A8BB]" />
+              记忆画廊
             </h3>
             {imageGenerations.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -405,7 +421,7 @@ export default function ExperienceCenter() {
               </div>
             ) : (
               <EmptyState
-                icon="🖼️"
+                icon={ImageIcon}
                 title="画廊还是空的"
                 description="用AI生成一些美丽的图片吧！"
                 actionLabel="生成图片"
@@ -441,12 +457,12 @@ export default function ExperienceCenter() {
 }
 
 function StatCard({
-  icon,
+  icon: Icon,
   value,
   label,
   color,
 }: {
-  icon: string;
+  icon: LucideIcon;
   value: number;
   label: string;
   color: string;
@@ -455,7 +471,9 @@ function StatCard({
     <div
       className={`bg-white/60 backdrop-blur-sm rounded-2xl p-4 shadow-sm border border-white/50 bg-gradient-to-br ${color}`}
     >
-      <div className="text-2xl mb-1">{icon}</div>
+      <div className="mb-1.5">
+        <Icon size={24} strokeWidth={1.8} className="text-[#3D2C2E]/70" />
+      </div>
       <div className="text-2xl font-bold text-[#3D2C2E]">{value}</div>
       <div className="text-xs text-[#9B8A8E]">{label}</div>
     </div>
@@ -465,24 +483,24 @@ function StatCard({
 function TabButton({
   active,
   onClick,
-  icon,
+  icon: Icon,
   label,
 }: {
   active: boolean;
   onClick: () => void;
-  icon: string;
+  icon: LucideIcon;
   label: string;
 }) {
   return (
     <button
       onClick={onClick}
-      className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
+      className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all flex items-center gap-1.5 ${
         active
           ? "bg-[#F8C8D4] text-white shadow-md"
           : "text-[#9B8A8E] hover:bg-white/50"
       }`}
     >
-      <span className="mr-1.5">{icon}</span>
+      <Icon size={16} strokeWidth={2} />
       {label}
     </button>
   );
@@ -524,12 +542,12 @@ function ActivityCard({
 }
 
 function QuickActionButton({
-  icon,
+  icon: Icon,
   label,
   onClick,
   primary = false,
 }: {
-  icon: string;
+  icon: LucideIcon;
   label: string;
   onClick: () => void;
   primary?: boolean;
@@ -543,7 +561,9 @@ function QuickActionButton({
           : "bg-white/60 backdrop-blur-sm text-[#3D2C2E] hover:bg-white/80 border border-white/50"
       }`}
     >
-      <div className="text-2xl mb-1">{icon}</div>
+      <div className="mb-1.5 flex justify-center">
+        <Icon size={22} strokeWidth={1.8} className={primary ? "text-white" : "text-[#3D2C2E]/60"} />
+      </div>
       <div>{label}</div>
     </button>
   );
@@ -632,13 +652,13 @@ function ChatSessionCard({
 }
 
 function EmptyState({
-  icon,
+  icon: Icon,
   title,
   description,
   actionLabel,
   onAction,
 }: {
-  icon: string;
+  icon: LucideIcon;
   title: string;
   description: string;
   actionLabel: string;
@@ -646,7 +666,9 @@ function EmptyState({
 }) {
   return (
     <div className="text-center py-16">
-      <div className="text-6xl mb-4">{icon}</div>
+      <div className="mb-4 flex justify-center text-[#E0D5D0]">
+        <Icon size={56} strokeWidth={1.2} />
+      </div>
       <h3 className="text-xl font-bold text-[#3D2C2E] mb-2">{title}</h3>
       <p className="text-[#9B8A8E] mb-6">{description}</p>
       <button
@@ -734,7 +756,10 @@ function CharacterDetailModal({
               onClick={onChat}
               className="flex-1 py-3 bg-[#F8C8D4] text-white rounded-xl font-medium hover:bg-[#F8C8D4]/90 transition-colors"
             >
-              💬 继续聊天
+              <span className="flex items-center justify-center gap-1.5">
+                <MessageCircle size={16} />
+                继续聊天
+              </span>
             </button>
             <button
               onClick={onClose}

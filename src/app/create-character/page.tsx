@@ -2,6 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import {
+  Sparkles,
+  ClipboardList,
+  Palette,
+  Lightbulb,
+  Brain,
+  MessageCircle,
+} from "lucide-react";
 import UserMenu from "@/components/UserMenu";
 import ImageToPromptAssistant from "@/components/ImageToPromptAssistant";
 import AvatarSystem from "@/components/AvatarSystem";
@@ -358,7 +366,7 @@ ${appearance ? `你的外貌特征：${appearance}` : ""}
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-[#3D2C2E] mb-1 flex items-center gap-2">
-                  <span>✨</span> AI智能辅助
+                  <Sparkles size={18} className="text-[#F8A8BB]" /> AI智能辅助
                 </h3>
                 <p className="text-sm text-[#9B8A8E]">
                   上传参考图片，AI自动生成角色设定，快速创建理想角色
@@ -371,7 +379,7 @@ ${appearance ? `你的外貌特征：${appearance}` : ""}
           {/* 基本信息 */}
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-[#EDE5E0] space-y-4">
             <h2 className="text-lg font-semibold text-[#3D2C2E] flex items-center gap-2">
-              <span>📝</span> 基本信息
+              <ClipboardList size={18} className="text-[#A8C8EA]" /> 基本信息
             </h2>
 
             {/* 角色名称 */}
@@ -529,7 +537,7 @@ ${appearance ? `你的外貌特征：${appearance}` : ""}
           {/* 外貌与形象 */}
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-[#EDE5E0] space-y-4">
             <h2 className="text-lg font-semibold text-[#3D2C2E] flex items-center gap-2">
-              <span>🎨</span> 外貌与形象
+              <Palette size={18} className="text-[#F8A8BB]" /> 外貌与形象
             </h2>
 
             {/* 头像系统 */}
@@ -564,8 +572,8 @@ ${appearance ? `你的外貌特征：${appearance}` : ""}
                 className="w-full px-4 py-3 bg-[#F5F0EB]/50 border border-[#EDE5E0] rounded-xl text-[#3D2C2E] placeholder:text-[#9B8A8E]/60 focus:border-[#F8C8D4] focus:ring-2 focus:ring-[#F8C8D4]/20 outline-none transition-all resize-none"
                 maxLength={500}
               />
-              <p className="mt-2 text-xs text-[#9B8A8E]">
-                💡
+              <p className="mt-2 text-xs text-[#9B8A8E] flex items-start gap-1">
+                <Lightbulb size={13} className="mt-0.5 shrink-0 text-[#F8C8D4]" />
                 详细的描述能让AI更准确地生成角色的照片，包括发型、五官、服装、气质等
               </p>
             </div>
@@ -575,7 +583,7 @@ ${appearance ? `你的外貌特征：${appearance}` : ""}
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-[#EDE5E0] space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-[#3D2C2E] flex items-center gap-2">
-                <span>🧠</span> 人物设定 <span className="text-red-500">*</span>
+                <Brain size={18} className="text-[#B8A8EA]" /> 人物设定 <span className="text-red-500">*</span>
               </h2>
               <button
                 type="button"
@@ -584,7 +592,8 @@ ${appearance ? `你的外貌特征：${appearance}` : ""}
                 }
                 className="text-sm px-3 py-1 bg-[#F8C8D4]/20 text-[#3D2C2E] rounded-lg hover:bg-[#F8C8D4]/40 transition-colors"
               >
-                ✨ 智能生成
+                <Sparkles size={13} className="inline mr-1" />
+                智能生成
               </button>
             </div>
 
@@ -613,7 +622,7 @@ ${appearance ? `你的外貌特征：${appearance}` : ""}
           {/* 开场白 */}
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-[#EDE5E0] space-y-4">
             <h2 className="text-lg font-semibold text-[#3D2C2E] flex items-center gap-2">
-              <span>💬</span> 开场白 <span className="text-red-500">*</span>
+              <MessageCircle size={18} className="text-[#F8A8BB]" /> 开场白 <span className="text-red-500">*</span>
             </h2>
 
             <p className="text-sm text-[#9B8A8E]">
@@ -643,7 +652,10 @@ ${appearance ? `你的外貌特征：${appearance}` : ""}
                   创建中...
                 </span>
               ) : (
-                "✨ 创建我的角色"
+                <span className="flex items-center justify-center gap-1.5">
+                  <Sparkles size={16} />
+                  创建我的角色
+                </span>
               )}
             </button>
           </div>
