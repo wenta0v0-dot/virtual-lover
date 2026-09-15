@@ -230,7 +230,7 @@ export default function ChatPage() {
       streamChat(
         [
           { role: "system", content: char.systemPrompt },
-          { role: "user", content: char.greeting },
+          { role: "assistant", content: char.greeting },
         ],
         greetingId,
         char,
@@ -780,7 +780,11 @@ export default function ChatPage() {
             )}
             {affinity && (
               <div className="mt-1 flex items-center gap-1.5">
-                <Heart size={11} className="text-[#F8A8BB]" fill="currentColor" />
+                <Heart
+                  size={11}
+                  className="text-[#F8A8BB]"
+                  fill="currentColor"
+                />
                 <span className="text-[11px] font-medium text-[#F8A8BB]">
                   {affinity.stage}
                 </span>

@@ -9,12 +9,7 @@ import { Eye, EyeOff, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ThemeToggle from "@/components/ThemeToggle";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Form,
   FormControl,
@@ -192,8 +187,7 @@ export default function LoginPage() {
   function handleLoginSuccess() {
     localStorage.removeItem("login_phone");
     toast.success("登录成功");
-    router.push("/");
-    router.refresh();
+    router.replace("/");
   }
 
   async function onCodeLogin(data: CodeLoginFormValues) {
@@ -337,8 +331,7 @@ export default function LoginPage() {
 
       localStorage.removeItem("login_phone");
       toast.success("注册成功，欢迎加入！");
-      router.push("/");
-      router.refresh();
+      router.replace("/");
     } catch {
       toast.error("注册失败，请稍后重试");
     } finally {
@@ -369,9 +362,13 @@ export default function LoginPage() {
   );
 
   const devCodePanel =
-    devCode && (codeForm.getValues("phone") === devPhone || regForm.getValues("phone") === devPhone) ? (
+    devCode &&
+    (codeForm.getValues("phone") === devPhone ||
+      regForm.getValues("phone") === devPhone) ? (
       <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-center">
-        <p className="text-xs text-amber-600 mb-1">开发模式验证码（{devPhone}）</p>
+        <p className="text-xs text-amber-600 mb-1">
+          开发模式验证码（{devPhone}）
+        </p>
         <p className="text-2xl font-bold text-amber-700 tracking-widest font-mono">
           {devCode}
         </p>
@@ -482,7 +479,9 @@ export default function LoginPage() {
               </svg>
             </div>
             <h1 className="text-3xl font-bold text-[#3D2C2E] mb-2">虚拟恋人</h1>
-            <p className="text-sm text-[#9B8A8E]">登录或创建账号，开始你的心动之旅</p>
+            <p className="text-sm text-[#9B8A8E]">
+              登录或创建账号，开始你的心动之旅
+            </p>
           </div>
 
           <div className="rounded-2xl bg-white/80 backdrop-blur-xl p-6 sm:p-8 shadow-xl shadow-[#F8C8D4]/10 border border-white/50">
@@ -626,7 +625,9 @@ export default function LoginPage() {
                                 <div className="relative">
                                   <Input
                                     placeholder="请输入密码"
-                                    type={showLoginPassword ? "text" : "password"}
+                                    type={
+                                      showLoginPassword ? "text" : "password"
+                                    }
                                     maxLength={64}
                                     className="h-11 pr-11 border-[#EDE5E0] bg-white/50 text-[#3D2C2E] placeholder:text-[#9B8A8E]/60 focus:border-[#F8C8D4] focus:ring-[#F8C8D4]/20 transition-all"
                                     {...field}
@@ -639,7 +640,9 @@ export default function LoginPage() {
                                     className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9B8A8E] hover:text-[#3D2C2E] transition-colors"
                                     tabIndex={-1}
                                     aria-label={
-                                      showLoginPassword ? "隐藏密码" : "显示密码"
+                                      showLoginPassword
+                                        ? "隐藏密码"
+                                        : "显示密码"
                                     }
                                   >
                                     {showLoginPassword ? (
@@ -690,7 +693,9 @@ export default function LoginPage() {
                         ) : (
                           <span className="flex flex-col items-center justify-center gap-0.5 text-[#F8A8BB] group-hover:text-[#F88BA3] transition-colors">
                             <Camera size={22} />
-                            <span className="text-[10px]">上传头像（可选）</span>
+                            <span className="text-[10px]">
+                              上传头像（可选）
+                            </span>
                           </span>
                         )}
                       </button>
@@ -765,7 +770,9 @@ export default function LoginPage() {
                             <div className="relative">
                               <Input
                                 placeholder="至少6位密码"
-                                type={showRegisterPassword ? "text" : "password"}
+                                type={
+                                  showRegisterPassword ? "text" : "password"
+                                }
                                 maxLength={64}
                                 className="h-11 pr-11 border-[#EDE5E0] bg-white/50 text-[#3D2C2E] placeholder:text-[#9B8A8E]/60 focus:border-[#F8C8D4] focus:ring-[#F8C8D4]/20 transition-all"
                                 {...field}
