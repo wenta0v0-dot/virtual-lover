@@ -8,6 +8,7 @@ import * as z from "zod";
 import { Eye, EyeOff, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import ThemeToggle from "@/components/ThemeToggle";
 import {
   Tabs,
   TabsList,
@@ -454,6 +455,9 @@ export default function LoginPage() {
 
   return (
     <div className="relative min-h-screen bg-[#FFF8F0]">
+      <div className="absolute top-4 right-4 z-10">
+        <ThemeToggle />
+      </div>
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#F8C8D4]/20 rounded-full blur-3xl" />
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#A8D8EA]/15 rounded-full blur-3xl" />

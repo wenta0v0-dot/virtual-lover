@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function UserMenu() {
   const [isOpen, setIsOpen] = useState(false);
@@ -43,6 +44,7 @@ export default function UserMenu() {
   if (isLoading) {
     return (
       <div className="flex items-center gap-2 rounded-full p-1.5">
+        <ThemeToggle />
         <div className="h-9 w-9 rounded-full bg-[#F8C8D4]/20 animate-pulse" />
       </div>
     );
@@ -76,7 +78,9 @@ export default function UserMenu() {
   const displayName = user.name || `用户${user.phone.slice(-4)}`;
 
   return (
-    <div className="relative" ref={menuRef}>
+    <div className="flex items-center gap-1.5">
+      <ThemeToggle />
+      <div className="relative" ref={menuRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 rounded-full p-1.5 hover:bg-white/50 transition-all duration-200 group"
@@ -192,6 +196,7 @@ export default function UserMenu() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

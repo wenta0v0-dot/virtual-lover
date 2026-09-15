@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Toaster } from "@/components/ui/sonner";
+import AppProviders from "@/components/AppProviders";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -13,19 +13,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-CN">
+    <html lang="zh-CN" suppressHydrationWarning>
       <body className="antialiased">
-        {children}
-        <Toaster
-          position="top-center"
-          toastOptions={{
-            style: {
-              background: "#fff",
-              border: "1px solid #EDE5E0",
-              color: "#3D2C2E",
-            },
-          }}
-        />
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   );

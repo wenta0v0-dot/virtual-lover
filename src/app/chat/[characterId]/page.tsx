@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
 import { CircleUserRound, Heart, RotateCcw } from "lucide-react";
 import { characters, getCharacter, type Character } from "@/lib/characters";
 import UserMenu from "@/components/UserMenu";
@@ -906,6 +907,17 @@ function MessageBubble({
   onRetryImage: (msgId: string) => void;
 }) {
   const isUser = message.role === "user";
+  const { resolvedTheme } = useTheme();
+  const bubbleBg = isUser
+    ? "#95EC69"
+    : resolvedTheme === "dark"
+      ? "#2E272B"
+      : "#FFFFFF";
+  const bubbleText = isUser
+    ? "#1A1A1A"
+    : resolvedTheme === "dark"
+      ? "#F2E8EA"
+      : "#3D2C2E";
 
   return (
     <div
@@ -992,8 +1004,8 @@ function MessageBubble({
         <div
           className="relative rounded-2xl px-4 py-2.5 text-sm leading-relaxed shadow-sm"
           style={{
-            backgroundColor: isUser ? "#95EC69" : "#FFFFFF",
-            color: isUser ? "#1A1A1A" : "#3D2C2E",
+            backgroundColor: bubbleBg,
+            color: bubbleText,
             borderTopLeftRadius: isUser ? "16px" : "4px",
             borderTopRightRadius: isUser ? "4px" : "16px",
           }}

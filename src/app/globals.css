@@ -262,3 +262,146 @@ body {
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
+
+/* ================= 深色模式适配 =================
+   页面使用硬编码的浅色工具类（如 bg-[#FFF8F0]），
+   在 .dark 下按"表面/文字/边框"三类统一覆盖为暖黑紫夜色主题，
+   粉/蓝强调色保持不变（在暗底上即自然的高亮点缀）。 */
+
+.dark .bg-\[\#FFF8F0\] {
+  background-color: #1b1518;
+}
+.dark .bg-white {
+  background-color: #262024;
+}
+.dark .bg-white\/20 {
+  background-color: rgb(42 36 40 / 0.2);
+}
+.dark .bg-white\/25 {
+  background-color: rgb(42 36 40 / 0.25);
+}
+.dark .bg-white\/30 {
+  background-color: rgb(42 36 40 / 0.3);
+}
+.dark .bg-white\/40 {
+  background-color: rgb(42 36 40 / 0.4);
+}
+.dark .bg-white\/50 {
+  background-color: rgb(42 36 40 / 0.5);
+}
+.dark .bg-white\/60 {
+  background-color: rgb(42 36 40 / 0.6);
+}
+.dark .bg-white\/70 {
+  background-color: rgb(42 36 40 / 0.7);
+}
+.dark .bg-white\/80 {
+  background-color: rgb(42 36 40 / 0.8);
+}
+.dark .bg-white\/90 {
+  background-color: rgb(42 36 40 / 0.9);
+}
+.dark .bg-white\/95 {
+  background-color: rgb(38 32 36 / 0.95);
+}
+.dark .bg-\[\#F5F0EB\] {
+  background-color: #2e272b;
+}
+.dark .bg-\[\#F5F0EB\]\/50 {
+  background-color: rgb(46 39 43 / 0.5);
+}
+.dark .bg-\[\#F7F7F7\] {
+  background-color: #201a1e;
+}
+.dark .bg-\[\#FDF2F4\] {
+  background-color: #2b2126;
+}
+.dark .bg-\[\#F8F0EA\] {
+  background-color: #262024;
+}
+.dark .bg-\[\#EDE5E0\],
+.dark .bg-\[\#EDEDED\] {
+  background-color: #3a3236;
+}
+.dark .bg-gray-100 {
+  background-color: #2e272b;
+}
+.dark .bg-gray-200 {
+  background-color: #3a3236;
+}
+.dark .from-gray-100 {
+  --tw-gradient-from: #2e272b;
+}
+.dark .to-gray-200 {
+  --tw-gradient-to: #3a3236;
+}
+
+.dark .text-\[\#3D2C2E\] {
+  color: #f2e8ea;
+}
+.dark .text-\[\#3D2C2E\]\/60 {
+  color: rgb(242 232 234 / 0.55);
+}
+.dark .text-\[\#3D2C2E\]\/70 {
+  color: rgb(242 232 234 / 0.65);
+}
+.dark .text-\[\#3D2C2E\]\/80 {
+  color: rgb(242 232 234 / 0.8);
+}
+.dark .text-\[\#9B8A8E\] {
+  color: #a99aa1;
+}
+.dark .text-\[\#9B8A8E\]\/60 {
+  color: rgb(169 154 161 / 0.6);
+}
+.dark .text-\[\#9B8A8E\]\/70 {
+  color: rgb(169 154 161 / 0.7);
+}
+.dark .text-\[\#9B8A8E\]\/80 {
+  color: rgb(169 154 161 / 0.8);
+}
+.dark .placeholder\:text-\[\#9B8A8E\]\/60 {
+  color: rgb(169 154 161 / 0.5);
+}
+
+.dark .border-\[\#EDE5E0\] {
+  border-color: #3a3236;
+}
+.dark .border-\[\#EDE5E0\]\/30 {
+  border-color: rgb(58 50 54 / 0.35);
+}
+.dark .border-\[\#EDE5E0\]\/50 {
+  border-color: rgb(58 50 54 / 0.5);
+}
+.dark .border-\[\#E0D5D0\] {
+  border-color: #3a3236;
+}
+.dark .border-\[\#E0D5D0\]\/30 {
+  border-color: rgb(58 50 54 / 0.4);
+}
+.dark .border-\[\#E0E0E0\],
+.dark .border-\[\#E5E7EB\] {
+  border-color: #3a3236;
+}
+.dark .border-\[\#3D2C2E\],
+.dark .border-\[\#9B8A8E\] {
+  border-color: #4a4046;
+}
+
+/* 仅在浅色下有意义的高亮渐变收尾 */
+.dark .via-\[\#FFF0F5\] {
+  --tw-gradient-via: #221b20;
+}
+.dark .to-\[\#F8F0FF\] {
+  --tw-gradient-to: #211b22;
+}
+.dark .from-\[\#F8F0EA\] {
+  --tw-gradient-from: #262024;
+}
+
+/* 浅色模式的柔和阴影在暗色下改为更深阴影 */
+.dark .shadow-sm,
+.dark .shadow-md,
+.dark .shadow-lg {
+  --tw-shadow-color: rgb(0 0 0 / 0.4);
+}

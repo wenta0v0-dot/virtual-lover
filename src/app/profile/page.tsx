@@ -469,10 +469,14 @@ function StatCard({
 }) {
   return (
     <div
-      className={`bg-white/60 backdrop-blur-sm rounded-2xl p-4 shadow-sm border border-white/50 bg-gradient-to-br ${color}`}
+      className={`bg-white/60 dark:bg-[#2A2428] backdrop-blur-sm rounded-2xl p-4 shadow-sm border border-white/50 dark:border-[#3A3236] bg-gradient-to-br dark:from-transparent dark:to-transparent ${color}`}
     >
       <div className="mb-1.5">
-        <Icon size={24} strokeWidth={1.8} className="text-[#3D2C2E]/70" />
+        <Icon
+          size={24}
+          strokeWidth={1.8}
+          className="text-[#3D2C2E]/70 dark:text-[#F8A8BB]"
+        />
       </div>
       <div className="text-2xl font-bold text-[#3D2C2E]">{value}</div>
       <div className="text-xs text-[#9B8A8E]">{label}</div>
